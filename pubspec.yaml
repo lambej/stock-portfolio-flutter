@@ -30,7 +30,7 @@ dependencies:
   url_launcher: ^6.2.4
 
 dev_dependencies:
-  bloc_test: ^9.1.4
+  bloc_test: ^9.1.6
   firebase_auth_platform_interface: ^7.0.5
   firebase_core_platform_interface: ^5.0.0
   flutter_test:
