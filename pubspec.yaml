@@ -1,4 +1,4 @@
-name: cloud_clipboard
+name: stock_portfolio
 description: A Very Good Project created by Very Good CLI.
 version: 1.0.0+1
 publish_to: none
@@ -22,12 +22,15 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   formz: ^0.6.0
   google_sign_in: ^6.2.1
+  http: ^1.2.0
   intl: ^0.18.0
+  json_annotation: ^4.8.1
   meta: ^1.10.0
   rxdart: ^0.27.7
   shared_preferences: ^2.2.2
   super_clipboard: ^0.8.4
   url_launcher: ^6.2.4
+  uuid: ^4.3.3
 
 dev_dependencies:
   bloc_test: ^9.1.4

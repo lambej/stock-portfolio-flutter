@@ -1,5 +1,5 @@
-import 'package:cloud_clipboard/app/app.dart';
-import 'package:cloud_clipboard/counter/counter.dart';
+import 'package:stock_portfolio/app/app.dart';
+import 'package:stock_portfolio/counter/counter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

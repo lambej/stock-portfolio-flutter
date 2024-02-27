@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:cloud_clipboard/authentication/authentication.dart';
-import 'package:cloud_clipboard/shared/email.dart';
-import 'package:cloud_clipboard/shared/password.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
+import 'package:stock_portfolio/authentication/authentication.dart';
+import 'package:stock_portfolio/shared/email.dart';
+import 'package:stock_portfolio/shared/password.dart';
 
 part 'login_state.dart';
 

@@ -1,5 +1,5 @@
-import 'package:cloud_clipboard/authentication/authentication.dart';
-import 'package:cloud_clipboard/sign_up/sign_up.dart';
+import 'package:stock_portfolio/authentication/authentication.dart';
+import 'package:stock_portfolio/sign_up/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
-import 'package:cloud_clipboard/authentication/authentication.dart';
-import 'package:cloud_clipboard/text_clipboard/text_clipboard.dart';
+import 'package:stock_portfolio/authentication/authentication.dart';
+import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
+
 import 'package:equatable/equatable.dart';
 
 part 'app_event.dart';
@@ -11,9 +13,9 @@ part 'app_state.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({
     required AuthenticationRepository authenticationRepository,
-    required ClipboardRepository clipboardRepository,
+    required FinnhubRepository stockRepository,
   })  : _authenticationRepository = authenticationRepository,
-        _clipboardRepository = clipboardRepository,
+        _stockRepository = stockRepository,
         super(
           authenticationRepository.currentUser.isNotEmpty
               ? AppState.authenticated(authenticationRepository.currentUser)
@@ -25,18 +27,15 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     _userSubscription = _authenticationRepository.user.listen((user) {
       if (user.isNotEmpty) {
-        _clipboardRepository
-            .init(authenticationRepository.currentUser.id)
-            .then((value) {
-          add(AppLoaded(authenticationRepository.currentUser));
-        });
+        add(AppLoaded(authenticationRepository.currentUser));
+      } else {
+        add(_AppUserChanged(user));
       }
-      add(_AppUserChanged(user));
     });
   }
 
   final AuthenticationRepository _authenticationRepository;
-  final ClipboardRepository _clipboardRepository;
+  final FinnhubRepository _stockRepository;
 
   late final StreamSubscription<User> _userSubscription;
   void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) {

@@ -1,7 +1,7 @@
-import 'package:cloud_clipboard/app/app.dart';
-import 'package:cloud_clipboard/login/login.dart';
-import 'package:cloud_clipboard/text_clipboard/text_clipboard.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_portfolio/app/app.dart';
+import 'package:stock_portfolio/login/login.dart';
+import 'package:stock_portfolio/stock/stock_list/view/stock_list_page.dart';
 
 List<Page<dynamic>> onGenerateAppViewPages(
   AppStatus state,
@@ -9,7 +9,7 @@ List<Page<dynamic>> onGenerateAppViewPages(
 ) {
   switch (state) {
     case AppStatus.appLoaded:
-      return [TextClipboardPage.page()];
+      return [StockListPage.page()];
     case AppStatus.authenticated:
       return [MaterialPage<void>(child: Container())];
     case AppStatus.unauthenticated:

@@ -90,11 +90,11 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.theoptionsgeek.cloud-clipboard" "\0"
-            VALUE "FileDescription", "cloud_clipboard" "\0"
+            VALUE "FileDescription", "stock_portfolio" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "cloud_clipboard" "\0"
+            VALUE "InternalName", "stock_portfolio" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.theoptionsgeek.cloud-clipboard. All rights reserved." "\0"
-            VALUE "OriginalFilename", "cloud_clipboard.exe" "\0"
+            VALUE "OriginalFilename", "stock_portfolio.exe" "\0"
             VALUE "ProductName", "Cloud Clipboard" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END

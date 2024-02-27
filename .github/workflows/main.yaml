@@ -1,4 +1,4 @@
-name: cloud_clipboard
+name: stock_portfolio
 
 concurrency:
   group: $-$
