@@ -39,6 +39,7 @@ class App extends StatelessWidget {
         create: (_) => AppBloc(
           authenticationRepository: _authenticationRepository,
           stockRepository: _stockRepository,
+          portfolioRepository: _portfolioRepository,
         ),
         child: BlocBuilder<AppBloc, AppState>(
           builder: (context, state) {

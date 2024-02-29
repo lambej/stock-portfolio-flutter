@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:stock_portfolio/authentication/authentication.dart';
+import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
 import 'package:equatable/equatable.dart';
@@ -14,8 +15,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({
     required AuthenticationRepository authenticationRepository,
     required FinnhubRepository stockRepository,
+    required PortfolioRepository portfolioRepository,
   })  : _authenticationRepository = authenticationRepository,
         _stockRepository = stockRepository,
+        _portfolioRepository = portfolioRepository,
         super(
           authenticationRepository.currentUser.isNotEmpty
               ? AppState.authenticated(authenticationRepository.currentUser)
@@ -27,7 +30,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     _userSubscription = _authenticationRepository.user.listen((user) {
       if (user.isNotEmpty) {
-        add(AppLoaded(authenticationRepository.currentUser));
+        _portfolioRepository
+            .init(authenticationRepository.currentUser.id)
+            .then((value) {
+          add(AppLoaded(authenticationRepository.currentUser));
+        });
       } else {
         add(_AppUserChanged(user));
       }
@@ -36,6 +43,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   final AuthenticationRepository _authenticationRepository;
   final FinnhubRepository _stockRepository;
+  final PortfolioRepository _portfolioRepository;
 
   late final StreamSubscription<User> _userSubscription;
   void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) {

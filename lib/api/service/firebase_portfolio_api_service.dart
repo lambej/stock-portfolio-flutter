@@ -5,9 +5,6 @@ import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:stock_portfolio/api/service/portfolio_api_service.dart';
 
-/// {@template firebase_storage_portfolio_api}
-/// A Flutter implementation of the PortfolioApi that uses firebase storage
-/// {@endtemplate}
 class FirebasePortfolioApiService extends PortfolioApi {
   /// {@macro local_storage_portfolio_api}
   FirebasePortfolioApiService({
@@ -19,8 +16,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
       BehaviorSubject<List<Account>>.seeded(const []);
   final _accountTypeStreamController =
       BehaviorSubject<List<AccountType>>.seeded(const []);
-  final _balanceStreamController =
-      BehaviorSubject<List<Balance>>.seeded(const []);
   final _contributionStreamController =
       BehaviorSubject<List<Contribution>>.seeded(const []);
   late String _userId;
@@ -45,13 +40,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
   @visibleForTesting
   static const kAccountTypesCollectionKey = 'Account_Types';
 
-  /// The key used for storing the balances.
-  ///
-  /// This is only exposed for testing and shouldn't be used by consumers of
-  /// this library.
-  @visibleForTesting
-  static const kBalancesCollectionKey = 'Balances';
-
   /// The key used for storing the contributions.
   ///
   /// This is only exposed for testing and shouldn't be used by consumers of
@@ -59,7 +47,7 @@ class FirebasePortfolioApiService extends PortfolioApi {
   @visibleForTesting
   static const kContributionsCollectionKey = 'Contributions';
 
-  /// Initializes the [FirebaseStoragePortfolioApi].
+  /// Initializes the [FirebasePortfolioApiService].
   ///
   /// This method must be called before calling any other method.
   @override
@@ -67,8 +55,7 @@ class FirebasePortfolioApiService extends PortfolioApi {
     _userId = userId;
     await _initAccountType(userId);
     await _initAccount(userId);
-    await _initBalance(userId);
-    await _initContribution(userId);
+    //await _initContribution(userId);
   }
 
   Future<void> _initAccountType(String userId) async {
@@ -106,21 +93,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
     _accountStreamController.add(accounts);
   }
 
-  Future<void> _initBalance(String userId) async {
-    final balancesJson = await _plugin
-        .collection(kBalancesCollectionKey)
-        .where('userId', isEqualTo: userId)
-        .orderBy('date', descending: true)
-        .get();
-    final balances = balancesJson.docs
-        .map(
-          (e) => Balance.fromJson(Map<String, dynamic>.from(e.data()), e.id),
-        )
-        .toList();
-    maxBalanceReached = balances.length >= UserStorageLimits.maxBalances;
-    _balanceStreamController.add(balances);
-  }
-
   Future<void> _initContribution(String userId) async {
     final contributionsJson = await _plugin
         .collection(kContributionsCollectionKey)
@@ -148,20 +120,7 @@ class FirebasePortfolioApiService extends PortfolioApi {
       accounts.removeAt(accountIndex);
       _accountStreamController.add(accounts);
 
-      // Delete all balances and contributions associated with the account.
-      final balances = [..._balanceStreamController.value]
-        ..removeWhere((balance) => balance.accountId == id);
-      _balanceStreamController.add(balances);
-      await _plugin
-          .collection(kBalancesCollectionKey)
-          .where('accountId', isEqualTo: id)
-          .get()
-          .then((snapshot) {
-        for (final doc in snapshot.docs) {
-          doc.reference.delete();
-        }
-      });
-
+      // Delete all contributions associated with the account.
       final contributions = [..._contributionStreamController.value]
         ..removeWhere((contribution) => contribution.accountId == id);
       _contributionStreamController.add(contributions);
@@ -177,7 +136,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
 
       // Update the max values.
       maxAccountReached = accounts.length >= UserStorageLimits.maxAccounts;
-      maxBalanceReached = balances.length >= UserStorageLimits.maxBalances;
       maxContributionReached =
           contributions.length >= UserStorageLimits.maxContributions;
 
@@ -198,21 +156,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
       maxAccountTypeReached =
           accountTypes.length >= UserStorageLimits.maxAccountTypes;
       return _plugin.collection(kAccountTypesCollectionKey).doc(id).delete();
-    }
-  }
-
-  @override
-  Future<void> deleteBalance(String id) {
-    final balances = [..._balanceStreamController.value];
-    final balanceIndex = balances.indexWhere((t) => t.id == id);
-    if (balanceIndex == -1) {
-      throw BalanceNotFoundException();
-    } else {
-      balances.removeAt(balanceIndex);
-      _balanceStreamController.add(balances);
-
-      maxBalanceReached = balances.length >= UserStorageLimits.maxBalances;
-      return _plugin.collection(kBalancesCollectionKey).doc(id).delete();
     }
   }
 
@@ -239,18 +182,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
   @override
   Stream<List<Account>> getAccounts() =>
       _accountStreamController.asBroadcastStream();
-
-  @override
-  Stream<List<Balance>> getBalances(List<Account> accounts) {
-    return _balanceStreamController.stream.map(
-      (balances) => balances
-          .where(
-            (balance) =>
-                accounts.any((account) => account.id == balance.accountId),
-          )
-          .toList(),
-    )..asBroadcastStream();
-  }
 
   @override
   Stream<List<Contribution>> getContributions(List<Account> accounts) {
@@ -333,34 +264,6 @@ class FirebasePortfolioApiService extends PortfolioApi {
   }
 
   @override
-  Future<void> saveBalance(Balance balance) async {
-    final balances = [..._balanceStreamController.value];
-    final balanceIndex = balances.indexWhere((t) => t.id == balance.id);
-    late var isNewBalance = false;
-    final newBalance = balance.copyWith(userId: _userId);
-    if (balanceIndex >= 0) {
-      balances[balanceIndex] = newBalance;
-    } else {
-      final balanceId = await _plugin
-          .collection(kBalancesCollectionKey)
-          .add(newBalance.toJson());
-      newBalance.id = balanceId.id;
-      balances.add(newBalance);
-      isNewBalance = true;
-    }
-
-    _balanceStreamController.add(balances);
-
-    maxBalanceReached = balances.length >= UserStorageLimits.maxBalances;
-    return isNewBalance
-        ? null
-        : _plugin
-            .collection(kBalancesCollectionKey)
-            .doc(newBalance.id)
-            .update(newBalance.toJson());
-  }
-
-  @override
   Future<void> saveContribution(Contribution contribution) async {
     final contributions = [..._contributionStreamController.value];
     final contributionIndex =
@@ -389,6 +292,4 @@ class FirebasePortfolioApiService extends PortfolioApi {
             .doc(newContribution.id)
             .update(newContribution.toJson());
   }
-
-  /// {@macro firebase_storage_portfolio_api}
 }

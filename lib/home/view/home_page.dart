@@ -28,8 +28,8 @@ class _HomeViewState extends State<HomePage> {
     selectedTab = context.select((HomeCubit cubit) => cubit.state.tab);
     // init portfolio api user
     //selectedTab = HomeTab.overview;
-    return MultiBlocProvider(
-      providers: [
+    return //MultiBlocProvider(
+        // providers: [
         // BlocProvider<OverviewBloc>(
         //   create: (_) => OverviewBloc(
         //     portfolioRepository: context.read<PortfolioRepository>(),
@@ -55,45 +55,46 @@ class _HomeViewState extends State<HomePage> {
         //     portfolioRepository: context.read<PortfolioRepository>(),
         //   )..add(const CashflowChartRequested()),
         // ),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: //title change depending on the selected tab
-              selectedTab == HomeTab.overview
-                  ? Text(AppLocalizations.of(context).overview)
-                  : selectedTab == HomeTab.accounts
-                      ? Text(AppLocalizations.of(context).accounts)
-                      : Text(AppLocalizations.of(context).charts),
-        ),
-        drawer: const AppStructure(),
-        body: IndexedStack(
-            index: selectedTab.index,
-            children: const [OverviewPage()] //, AccountsPage(), ChartsPage()],
+        // ],
+        // child:
+        Scaffold(
+      appBar: AppBar(
+        title: //title change depending on the selected tab
+            selectedTab == HomeTab.overview
+                ? Text(AppLocalizations.of(context).overview)
+                : selectedTab == HomeTab.accounts
+                    ? Text(AppLocalizations.of(context).accounts)
+                    : Text(AppLocalizations.of(context).charts),
+      ),
+      drawer: const AppStructure(),
+      body: IndexedStack(
+        index: selectedTab.index,
+        children: const [OverviewPage(), AccountsPage(), Text('Charts')],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _HomeTabButton(
+              groupValue: selectedTab,
+              value: HomeTab.overview,
+              icon: const Icon(Icons.list_rounded),
             ),
-        bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _HomeTabButton(
-                groupValue: selectedTab,
-                value: HomeTab.overview,
-                icon: const Icon(Icons.list_rounded),
-              ),
-              _HomeTabButton(
-                groupValue: selectedTab,
-                value: HomeTab.accounts,
-                icon: const Icon(Icons.account_balance_wallet_rounded),
-              ),
-              _HomeTabButton(
-                groupValue: selectedTab,
-                value: HomeTab.charts,
-                icon: const Icon(Icons.show_chart_rounded),
-              ),
-            ],
-          ),
+            _HomeTabButton(
+              groupValue: selectedTab,
+              value: HomeTab.accounts,
+              icon: const Icon(Icons.account_balance_wallet_rounded),
+            ),
+            _HomeTabButton(
+              groupValue: selectedTab,
+              value: HomeTab.charts,
+              icon: const Icon(Icons.show_chart_rounded),
+            ),
+          ],
         ),
       ),
+      //  ),
     );
   }
 
