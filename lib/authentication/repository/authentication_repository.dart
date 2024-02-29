@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:cloud_clipboard/authentication/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
+import 'package:stock_portfolio/authentication/authentication.dart';
 
 /// {@template sign_up_with_email_and_password_failure}
 /// Thrown during the sign up process if a failure occurs.
