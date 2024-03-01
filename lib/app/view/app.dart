@@ -1,12 +1,13 @@
+import 'package:flow_builder/flow_builder.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stock_portfolio/app/app.dart';
 import 'package:stock_portfolio/authentication/repository/authentication_repository.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/routes/routes.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
-import 'package:flow_builder/flow_builder.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_portfolio/theme/theme.dart';
 
 class App extends StatelessWidget {
   const App({
@@ -44,15 +45,8 @@ class App extends StatelessWidget {
         child: BlocBuilder<AppBloc, AppState>(
           builder: (context, state) {
             return MaterialApp(
-              theme: ThemeData(
-                appBarTheme: const AppBarTheme(
-                  backgroundColor: Color.fromARGB(255, 5, 142, 196),
-                ),
-                floatingActionButtonTheme: const FloatingActionButtonThemeData(
-                  backgroundColor: Color.fromARGB(255, 5, 142, 196),
-                ),
-                useMaterial3: true,
-              ),
+              theme: FlutterTheme.light,
+              darkTheme: FlutterTheme.dark,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               home: FlowBuilder<AppStatus>(

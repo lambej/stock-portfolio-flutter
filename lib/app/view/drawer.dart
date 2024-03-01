@@ -14,15 +14,28 @@ class AppStructure extends StatelessWidget {
           child: ListView(
             children: [
               UserAccountsDrawerHeader(
-                accountName: Text(state.user.name ?? ''),
-                accountEmail: Text(state.user.email ?? ''),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                ),
+                accountName: Text(
+                  state.user.name ?? '',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                accountEmail: Text(
+                  state.user.email ?? '',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
                 currentAccountPicture: CircleAvatar(
                   foregroundImage: state.user.photo != null
                       ? NetworkImage(
                           state.user.photo!,
                         )
                       : null,
-                  backgroundColor: Theme.of(context).colorScheme.tertiary,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                   child: Text(
                     state.user.name
                             ?.trim()
