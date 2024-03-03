@@ -11,7 +11,7 @@ dependencies:
   cloud_firestore: ^4.15.4
   collection: ^1.18.0
   equatable: ^2.0.5
-  firebase_auth: ^4.17.4
+  firebase_auth: ^4.17.6
   firebase_core: ^2.23.0
   flow_builder: ^0.0.10
   flutter:
