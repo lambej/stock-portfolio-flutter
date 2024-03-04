@@ -170,4 +170,24 @@ class PortfolioRepository {
     }
     return yearlyContributions;
   }
+
+  /// Provides a [Stream] of all positions of the given accounts.
+  ///
+  Stream<List<Position>> getPositions(List<Account> accounts) {
+    return _portfolioApi.getPositions(accounts);
+  }
+
+  /// Saves a [position].
+  ///
+  /// If a [position] with the same id already exists, it will be replaced.
+  Future<void> savePosition(Position position) {
+    return _portfolioApi.savePosition(position);
+  }
+
+  /// Deletes the `position` with the given id.
+  ///
+  /// If no `position` with the given id exists, a [PositionNotFoundException]
+  Future<void> deletePosition(String id) {
+    return _portfolioApi.deletePosition(id);
+  }
 }
