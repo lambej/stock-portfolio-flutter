@@ -18,6 +18,8 @@ class FirebasePortfolioApiService extends PortfolioApi {
       BehaviorSubject<List<AccountType>>.seeded(const []);
   final _contributionStreamController =
       BehaviorSubject<List<Contribution>>.seeded(const []);
+  final _positionStreamController =
+      BehaviorSubject<List<Position>>.seeded(const []);
   late String _userId;
 
   // TODO(lambej): add user model containing userid and the isPremium flag
@@ -47,6 +49,13 @@ class FirebasePortfolioApiService extends PortfolioApi {
   @visibleForTesting
   static const kContributionsCollectionKey = 'Contributions';
 
+  /// The key used for storing the positions.
+  ///
+  /// This is only exposed for testing and shouldn't be used by consumers of
+  /// this library.
+  @visibleForTesting
+  static const kPositionsCollectionKey = 'Positions';
+
   /// Initializes the [FirebasePortfolioApiService].
   ///
   /// This method must be called before calling any other method.
@@ -55,6 +64,7 @@ class FirebasePortfolioApiService extends PortfolioApi {
     _userId = userId;
     await _initAccountType(userId);
     await _initAccount(userId);
+    await _initPositions(userId);
     //await _initContribution(userId);
   }
 
@@ -108,6 +118,20 @@ class FirebasePortfolioApiService extends PortfolioApi {
     maxContributionReached =
         contributions.length >= UserStorageLimits.maxContributions;
     _contributionStreamController.add(contributions);
+  }
+
+  Future<void> _initPositions(String userId) async {
+    final positionsJson = await _plugin
+        .collection(kPositionsCollectionKey)
+        .where('userId', isEqualTo: userId)
+        .get();
+    final positions = positionsJson.docs
+        .map(
+          (e) => Position.fromJson(Map<String, dynamic>.from(e.data()), e.id),
+        )
+        .toList();
+    maxPositionReached = positions.length >= UserStorageLimits.maxPositions;
+    _positionStreamController.add(positions);
   }
 
   @override
@@ -176,6 +200,21 @@ class FirebasePortfolioApiService extends PortfolioApi {
   }
 
   @override
+  Future<void> deletePosition(String id) {
+    final positions = [..._positionStreamController.value];
+    final positionIndex = positions.indexWhere((t) => t.id == id);
+    if (positionIndex == -1) {
+      throw PositionNotFoundException();
+    } else {
+      positions.removeAt(positionIndex);
+      _positionStreamController.add(positions);
+
+      maxPositionReached = positions.length >= UserStorageLimits.maxPositions;
+      return _plugin.collection(kPositionsCollectionKey).doc(id).delete();
+    }
+  }
+
+  @override
   Stream<List<AccountType>> getAccountTypes() =>
       _accountTypeStreamController.asBroadcastStream();
 
@@ -196,11 +235,31 @@ class FirebasePortfolioApiService extends PortfolioApi {
   }
 
   @override
+  Stream<List<Position>> getPositions(List<Account> accounts) {
+    return _positionStreamController.stream.map(
+      (positions) => positions
+          .where(
+            (position) =>
+                accounts.any((account) => account.id == position.accountId),
+          )
+          .toList(),
+    )..asBroadcastStream();
+  }
+
+  @override
   Stream<List<Contribution>> getContributionsFromAccount(String id) {
     return _contributionStreamController.stream.map(
       (contributions) => contributions
           .where((contribution) => contribution.accountId == id)
           .toList(),
+    )..asBroadcastStream();
+  }
+
+  @override
+  Stream<List<Position>> getPositionsFromAccount(String id) {
+    return _positionStreamController.stream.map(
+      (positions) =>
+          positions.where((position) => position.accountId == id).toList(),
     )..asBroadcastStream();
   }
 
@@ -291,5 +350,33 @@ class FirebasePortfolioApiService extends PortfolioApi {
             .collection(kContributionsCollectionKey)
             .doc(newContribution.id)
             .update(newContribution.toJson());
+  }
+
+  @override
+  Future<void> savePosition(Position position) async {
+    final positions = [..._positionStreamController.value];
+    final positionIndex = positions.indexWhere((t) => t.id == position.id);
+    late var isNewPosition = false;
+    final newPosition = position.copyWith(userId: _userId);
+    if (positionIndex >= 0) {
+      positions[positionIndex] = newPosition;
+    } else {
+      final positionId = await _plugin
+          .collection(kPositionsCollectionKey)
+          .add(newPosition.toJson());
+      newPosition.id = positionId.id;
+      positions.add(newPosition);
+      isNewPosition = true;
+    }
+
+    _positionStreamController.add(positions);
+
+    maxPositionReached = positions.length >= UserStorageLimits.maxPositions;
+    return isNewPosition
+        ? null
+        : _plugin
+            .collection(kPositionsCollectionKey)
+            .doc(newPosition.id)
+            .update(newPosition.toJson());
   }
 }
