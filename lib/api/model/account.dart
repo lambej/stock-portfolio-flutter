@@ -56,7 +56,7 @@ class Account extends Equatable {
 
   /// The type of the `account`.
   ///
-  /// Note that the type cannot be null.
+  /// Exclude from the json serialization.
   @JsonKey(includeFromJson: false)
   AccountType? accountType;
 

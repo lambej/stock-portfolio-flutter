@@ -29,5 +29,12 @@
     "editAccountNameLabel": "Nom",
     "editAccountTypeLabel": "Type",
     "editAccountMissingType": "Veuillez sélectionner un type",
-    "editAccountDescriptionLabel": "Description"
+    "editAccountDescriptionLabel": "Description",
+    "editPositionMaxPositionSnackBar": "Vous avez atteint le nombre maximum positions. Pour plus d'options, utilisez notre app à",
+    "editPositionAddAppBarTitle": "Ajout de position",
+    "editPositionEditAppBarTitle": "Modification de position",
+    "editPositionSaveButtonTooltip": "Sauvegarder",
+    "editPositionTickerLabel": "Cote",
+    "editPositionQtyOfSharesLabel": "Qté. d'actions",
+    "positionErrorSnackbarText": "Une erreur est survenu lors du chargement des positions."
 }

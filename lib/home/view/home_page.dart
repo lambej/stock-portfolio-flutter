@@ -6,6 +6,9 @@ import 'package:stock_portfolio/app/view/drawer.dart';
 import 'package:stock_portfolio/home/home.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
 import 'package:stock_portfolio/overview/overview.dart';
+import 'package:stock_portfolio/positions/position_list/bloc/position_list_bloc.dart';
+import 'package:stock_portfolio/positions/position_list/view/position_list_page.dart';
+import 'package:stock_portfolio/repository/portfolio_repository.dart';
 //import 'package:stock_portfolio/portfolio_repository.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,36 +31,31 @@ class _HomeViewState extends State<HomePage> {
     selectedTab = context.select((HomeCubit cubit) => cubit.state.tab);
     // init portfolio api user
     //selectedTab = HomeTab.overview;
-    return //MultiBlocProvider(
-        // providers: [
-        // BlocProvider<OverviewBloc>(
-        //   create: (_) => OverviewBloc(
-        //     portfolioRepository: context.read<PortfolioRepository>(),
-        //   )..add(const ReturnSubscriptionRequested()),
-        // ),
-        // BlocProvider<ReturnsChartBloc>(
-        //   create: (_) => ReturnsChartBloc(
-        //     portfolioRepository: context.read<PortfolioRepository>(),
-        //   )..add(const ReturnsChartRequested()),
-        // ),
-        // BlocProvider<BalancesChartBloc>(
-        //   create: (_) => BalancesChartBloc(
-        //     portfolioRepository: context.read<PortfolioRepository>(),
-        //   )..add(const BalancesChartRequested()),
-        // ),
-        // BlocProvider<AccountDistributionChartBloc>(
-        //   create: (_) => AccountDistributionChartBloc(
-        //     portfolioRepository: context.read<PortfolioRepository>(),
-        //   )..add(const AccountDistributionChartRequested()),
-        // ),
-        // BlocProvider<CashflowChartBloc>(
-        //   create: (_) => CashflowChartBloc(
-        //     portfolioRepository: context.read<PortfolioRepository>(),
-        //   )..add(const CashflowChartRequested()),
-        // ),
-        // ],
-        // child:
-        Scaffold(
+    // return MultiBlocProvider(
+    //   providers: [
+    // BlocProvider<ReturnsChartBloc>(
+    //   create: (_) => ReturnsChartBloc(
+    //     portfolioRepository: context.read<PortfolioRepository>(),
+    //   )..add(const ReturnsChartRequested()),
+    // ),
+    // BlocProvider<BalancesChartBloc>(
+    //   create: (_) => BalancesChartBloc(
+    //     portfolioRepository: context.read<PortfolioRepository>(),
+    //   )..add(const BalancesChartRequested()),
+    // ),
+    // BlocProvider<AccountDistributionChartBloc>(
+    //   create: (_) => AccountDistributionChartBloc(
+    //     portfolioRepository: context.read<PortfolioRepository>(),
+    //   )..add(const AccountDistributionChartRequested()),
+    // ),
+    // BlocProvider<CashflowChartBloc>(
+    //   create: (_) => CashflowChartBloc(
+    //     portfolioRepository: context.read<PortfolioRepository>(),
+    //   )..add(const CashflowChartRequested()),
+    // ),
+    // ],
+    // child:
+    return Scaffold(
       appBar: AppBar(
         title: //title change depending on the selected tab
             selectedTab == HomeTab.overview
@@ -69,7 +67,7 @@ class _HomeViewState extends State<HomePage> {
       drawer: const AppStructure(),
       body: IndexedStack(
         index: selectedTab.index,
-        children: const [OverviewPage(), AccountsPage(), Text('Charts')],
+        children: const [PositionListPage(), AccountsPage(), Text('Charts')],
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
@@ -94,8 +92,10 @@ class _HomeViewState extends State<HomePage> {
           ],
         ),
       ),
-      //  ),
     );
+
+    //   ),
+    // );
   }
 
   @override

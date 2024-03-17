@@ -67,6 +67,12 @@ class Position extends Equatable {
   /// Cannot be empty.
   final String accountId;
 
+  /// The `account` this `position` belongs to.
+  /// 
+  /// Exclude from the json serialization.
+  @JsonKey(includeFromJson: false)
+  Account? account;
+
   /// The id of the `user` this `account` belongs to.
   ///
   /// Cannot be empty.

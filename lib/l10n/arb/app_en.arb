@@ -29,5 +29,12 @@
     "editAccountNameLabel": "Name",
     "editAccountTypeLabel": "Type",
     "editAccountDescriptionLabel": "Description",
-    "editAccountMissingType": "Please select a type"
+    "editAccountMissingType": "Please select a type",
+    "editPositionMaxPositionSnackBar": "You have reached the maximum number of positions. For more options, use our web app at",
+    "editPositionAddAppBarTitle": "Add Position",
+    "editPositionEditAppBarTitle": "Edit Position",
+    "editPositionSaveButtonTooltip": "Save changes",
+    "editPositionTickerLabel": "Ticker",
+    "editPositionQtyOfSharesLabel": "Qty. Of Shares",
+    "positionErrorSnackbarText": "An error occurred while loading positions."
 }
