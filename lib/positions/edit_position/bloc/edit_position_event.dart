@@ -40,3 +40,12 @@ final class EditPositionQtyOfSharesChanged extends EditPositionEvent {
   @override
   List<Object> get props => [qtyOfShares];
 }
+
+final class EditPositionCostChanged extends EditPositionEvent {
+  const EditPositionCostChanged({required this.cost});
+
+  final double cost;
+
+  @override
+  List<Object> get props => [cost];
+}

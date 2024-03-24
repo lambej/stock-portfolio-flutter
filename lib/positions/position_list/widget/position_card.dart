@@ -32,12 +32,12 @@ class PositionCard extends StatelessWidget {
                     3: FlexColumnWidth(),
                   },
                   children: [
-                    const TableRow(
+                    TableRow(
                       children: [
-                        Text('Price 34'),
-                        SizedBox(),
-                        Text('P&L %: 34%'),
-                        SizedBox(),
+                        Text('Price \$${position.currentPrice}'),
+                        const SizedBox(),
+                        const Text('P&L %: 34%'),
+                        const SizedBox(),
                       ],
                     ),
                     TableRow(
@@ -48,12 +48,14 @@ class PositionCard extends StatelessWidget {
                         const SizedBox(),
                       ],
                     ),
-                    const TableRow(
+                    TableRow(
                       children: [
-                        Text('Cost Basis: %4102'),
-                        SizedBox(),
-                        Text(''),
-                        SizedBox(),
+                        Text(
+                          'Cost Basis: \$${position.costBasis ?? position.cost}',
+                        ),
+                        const SizedBox(),
+                        const Text(''),
+                        const SizedBox(),
                       ],
                     ),
                   ],

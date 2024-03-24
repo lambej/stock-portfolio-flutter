@@ -36,5 +36,6 @@
     "editPositionSaveButtonTooltip": "Sauvegarder",
     "editPositionTickerLabel": "Cote",
     "editPositionQtyOfSharesLabel": "Qté. d'actions",
-    "positionErrorSnackbarText": "Une erreur est survenu lors du chargement des positions."
+    "positionErrorSnackbarText": "Une erreur est survenu lors du chargement des positions.",
+    "editPositionCostLabel": "Coût"
 }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:stock_portfolio/api/service/portfolio_api_service.dart';
+import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
 export 'package:stock_portfolio/api/model/models.dart';
 
@@ -173,8 +173,18 @@ class PortfolioRepository {
 
   /// Provides a [Stream] of all positions of the given accounts.
   ///
-  Stream<List<Position>> getPositions(List<Account> accounts) {
-    return _portfolioApi.getPositions(accounts);
+  Stream<List<Position>> getPositions(
+      List<Account> accounts, FinnhubRepository stockRepository) {
+    final positionsStream =
+        _portfolioApi.getPositions(accounts).asyncMap((positions) async {
+      return Future.wait(positions.map((position) async {
+        final costBasis = await _getCostBasis(position, accounts);
+        final stockInfo =
+            await stockRepository.fetchStockInformation(position.ticker);
+        return position.setStockInfo(stockInfo).setCostBasis(costBasis);
+      }));
+    });
+    return positionsStream;
   }
 
   /// Saves a [position].
@@ -189,5 +199,26 @@ class PortfolioRepository {
   /// If no `position` with the given id exists, a [PositionNotFoundException]
   Future<void> deletePosition(String id) {
     return _portfolioApi.deletePosition(id);
+  }
+
+  /// Provide the Cost Basis of the given [position] in the given [accounts].
+  ///
+  /// The Cost Basis is the average of the cost of all positions.
+  Future<double> _getCostBasis(
+      Position position, List<Account> accounts) async {
+    final positions = await _portfolioApi.getPositions(accounts).first;
+    final totalCost = positions
+        .where((element) => element.ticker == position.ticker)
+        .fold<double>(
+          0,
+          (previousValue, element) => previousValue + element.cost,
+        );
+    final totalQty = positions
+        .where((element) => element.ticker == position.ticker)
+        .fold<double>(
+          0,
+          (previousValue, element) => previousValue + element.qtyOfShares,
+        );
+    return totalQty != 0 ? totalCost / totalQty : 0;
   }
 }

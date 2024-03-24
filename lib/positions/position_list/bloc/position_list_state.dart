@@ -11,7 +11,13 @@ final class PositionListInitial extends PositionListState {}
 
 final class PositionListLoading extends PositionListState {}
 
-final class PositionListError extends PositionListState {}
+final class PositionListError extends PositionListState {
+  const PositionListError(this.error);
+  final Object error;
+
+  @override
+  List<Object> get props => [error];
+}
 
 final class PositionListLoaded extends PositionListState {
   const PositionListLoaded(this.positions);

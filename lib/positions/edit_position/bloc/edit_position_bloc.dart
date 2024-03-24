@@ -52,6 +52,7 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
     on<EditPositionTickerChanged>(_onTickerChanged);
     on<EditPositionAccountChanged>(_onAccountChanged);
     on<EditPositionQtyOfSharesChanged>(_onQtyOfSharesChanged);
+    on<EditPositionCostChanged>(_onCostChanged);
   }
   final PortfolioRepository _portfolioRepository;
 
@@ -79,6 +80,15 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
   ) {
     emit(
       state.copyWith(qtyOfShares: event.qtyOfShares),
+    );
+  }
+
+  void _onCostChanged(
+    EditPositionCostChanged event,
+    Emitter<EditPositionState> emit,
+  ) {
+    emit(
+      state.copyWith(cost: event.cost),
     );
   }
 }

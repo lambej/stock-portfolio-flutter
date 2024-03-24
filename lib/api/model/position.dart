@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:stock_portfolio/api/model/models.dart';
+import 'package:stock_portfolio/stock/model/stock_model.dart';
 import 'package:uuid/uuid.dart';
 
 part 'position.g.dart';
@@ -30,6 +31,8 @@ class Position extends Equatable {
     required this.currency,
     required this.accountId,
     required this.userId,
+    this.costBasis,
+    this.currentPrice,
     String? id,
   })  : assert(
           id == null || id.isNotEmpty,
@@ -68,7 +71,7 @@ class Position extends Equatable {
   final String accountId;
 
   /// The `account` this `position` belongs to.
-  /// 
+  ///
   /// Exclude from the json serialization.
   @JsonKey(includeFromJson: false)
   Account? account;
@@ -77,6 +80,15 @@ class Position extends Equatable {
   ///
   /// Cannot be empty.
   final String userId;
+
+  /// The cost basis of the `position`.
+  ///
+  /// Defaults to 0.
+  final double? costBasis;
+
+  /// The current price of the `position`.
+  @JsonKey(includeFromJson: false)
+  final double? currentPrice;
 
   /// Returns a copy of this `position` with the given values updated.
   Position copyWith({
@@ -87,6 +99,8 @@ class Position extends Equatable {
     String? currency,
     String? accountId,
     String? userId,
+    double? costBasis,
+    double? currentPrice,
   }) {
     return Position(
       id: id ?? this.id,
@@ -96,10 +110,12 @@ class Position extends Equatable {
       currency: currency ?? this.currency,
       accountId: accountId ?? this.accountId,
       userId: userId ?? this.userId,
+      costBasis: costBasis ?? this.costBasis,
+      currentPrice: currentPrice ?? this.currentPrice,
     );
   }
 
-  /// Deserializes the given [JsonMap] into a [position].
+  /// Deserializes the given [JsonMap] into a [Position].
   static Position fromJson(JsonMap json, [String? id]) {
     final position = _$PositionFromJson(json);
     if (id != null) {
@@ -110,6 +126,17 @@ class Position extends Equatable {
 
   /// Converts this [Account] into a [JsonMap].
   JsonMap toJson() => _$PositionToJson(this);
+
+  /// Set Cost Basis of the `position`.
+  Position setCostBasis(double cb) {
+    return copyWith(costBasis: cb);
+  }
+
+  Position setStockInfo(StockModel stockInfo) {
+    return copyWith(
+      currentPrice: stockInfo.currentPrice,
+    );
+  }
 
   @override
   List<Object> get props =>

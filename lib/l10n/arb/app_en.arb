@@ -36,5 +36,6 @@
     "editPositionSaveButtonTooltip": "Save changes",
     "editPositionTickerLabel": "Ticker",
     "editPositionQtyOfSharesLabel": "Qty. Of Shares",
-    "positionErrorSnackbarText": "An error occurred while loading positions."
+    "positionErrorSnackbarText": "An error occurred while loading positions.",
+    "editPositionCostLabel": "Cost"
 }

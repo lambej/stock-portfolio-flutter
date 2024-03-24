@@ -7,6 +7,7 @@ import 'package:stock_portfolio/positions/edit_position/edit_position.dart';
 import 'package:stock_portfolio/positions/position_list/bloc/position_list_bloc.dart';
 import 'package:stock_portfolio/positions/position_list/widget/widget.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
+import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
 class PositionListPage extends StatelessWidget {
   const PositionListPage({super.key});
@@ -16,6 +17,7 @@ class PositionListPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => PositionListBloc(
         portfolioRepository: context.read<PortfolioRepository>(),
+        stockRepository: context.read<FinnhubRepository>(),
       )..add(const LoadPositions()),
       child: const PositionListView(),
     );
@@ -36,7 +38,7 @@ class PositionListView extends StatelessWidget {
               ..hideCurrentSnackBar()
               ..showSnackBar(
                 SnackBar(
-                  content: Text(l10n.positionErrorSnackbarText),
+                  content: Text(state.error.toString()),
                 ),
               );
           }

@@ -136,7 +136,8 @@ class EditPositionView extends StatelessWidget {
                 children: [
                   _AccountField(),
                   _TickerField(),
-                  _QtyOfSharesField()
+                  _QtyOfSharesField(),
+                  _CostField(),
                 ],
               ),
             ),
@@ -244,7 +245,7 @@ class _QtyOfSharesField extends StatelessWidget {
         labelText: l10n.editPositionQtyOfSharesLabel,
         hintText: hintText,
       ),
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
       ],
@@ -252,6 +253,38 @@ class _QtyOfSharesField extends StatelessWidget {
         context.read<EditPositionBloc>().add(
               EditPositionQtyOfSharesChanged(
                 qtyOfShares: double.parse(value),
+              ),
+            );
+      },
+    );
+  }
+}
+
+class _CostField extends StatelessWidget {
+  const _CostField();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final state = context.watch<EditPositionBloc>().state;
+    final hintText = state.initialPosition?.cost.toString() ?? '0';
+
+    return TextFormField(
+      key: const Key('editPositionView_cost_textFormField'),
+      initialValue: state.cost.toString(),
+      decoration: InputDecoration(
+        enabled: state.status != EditPositionStatus.success,
+        labelText: l10n.editPositionCostLabel,
+        hintText: hintText,
+      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+      ],
+      onChanged: (value) {
+        context.read<EditPositionBloc>().add(
+              EditPositionCostChanged(
+                cost: double.parse(value),
               ),
             );
       },
