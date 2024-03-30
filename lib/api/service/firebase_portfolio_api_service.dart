@@ -125,11 +125,19 @@ class FirebasePortfolioApiService extends PortfolioApi {
         .collection(kPositionsCollectionKey)
         .where('userId', isEqualTo: userId)
         .get();
-    final positions = positionsJson.docs
-        .map(
-          (e) => Position.fromJson(Map<String, dynamic>.from(e.data()), e.id),
-        )
-        .toList();
+    final positions = positionsJson.docs.map((e) {
+      final position =
+          Position.fromJson(Map<String, dynamic>.from(e.data()), e.id);
+      position.account = _accountStreamController.value.firstWhere(
+        (t) => t.id == position.accountId,
+        orElse: () => Account(
+          id: position.accountId == '' ? 'k' : position.accountId,
+          name: '',
+          userId: '',
+        ),
+      );
+      return position;
+    }).toList();
     maxPositionReached = positions.length >= UserStorageLimits.maxPositions;
     _positionStreamController.add(positions);
   }
@@ -357,7 +365,8 @@ class FirebasePortfolioApiService extends PortfolioApi {
     final positions = [..._positionStreamController.value];
     final positionIndex = positions.indexWhere((t) => t.id == position.id);
     late var isNewPosition = false;
-    final newPosition = position.copyWith(userId: _userId);
+    final newPosition =
+        position.copyWith(userId: _userId, accountId: position.account?.id);
     if (positionIndex >= 0) {
       positions[positionIndex] = newPosition;
     } else {

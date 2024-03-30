@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:collection/collection.dart';
 import 'package:stock_portfolio/api/service/portfolio_api_service.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
@@ -174,15 +174,29 @@ class PortfolioRepository {
   /// Provides a [Stream] of all positions of the given accounts.
   ///
   Stream<List<Position>> getPositions(
-      List<Account> accounts, FinnhubRepository stockRepository) {
+    List<Account> accounts,
+    FinnhubRepository stockRepository,
+  ) {
     final positionsStream =
         _portfolioApi.getPositions(accounts).asyncMap((positions) async {
-      return Future.wait(positions.map((position) async {
-        final costBasis = await _getCostBasis(position, accounts);
+      final pos =
+          groupBy(positions, (position) => position.ticker.toUpperCase())
+              .values
+              .toList()
+              .map((positions) async {
+        final costBasis = await _getCostBasis(positions.first, accounts);
         final stockInfo =
-            await stockRepository.fetchStockInformation(position.ticker);
-        return position.setStockInfo(stockInfo).setCostBasis(costBasis);
-      }));
+            await stockRepository.fetchStockInformation(positions.first.ticker);
+        final totalShares = positions.fold<double>(
+          0,
+          (sum, position) => sum + position.qtyOfShares,
+        );
+        return positions.first
+            .setStockInfo(stockInfo)
+            .setCostBasis(costBasis)
+            .setTotalShares(totalShares);
+      });
+      return Future.wait(pos);
     });
     return positionsStream;
   }
@@ -208,13 +222,15 @@ class PortfolioRepository {
       Position position, List<Account> accounts) async {
     final positions = await _portfolioApi.getPositions(accounts).first;
     final totalCost = positions
-        .where((element) => element.ticker == position.ticker)
+        .where((element) =>
+            element.ticker.toUpperCase() == position.ticker.toUpperCase())
         .fold<double>(
           0,
           (previousValue, element) => previousValue + element.cost,
         );
     final totalQty = positions
-        .where((element) => element.ticker == position.ticker)
+        .where((element) =>
+            element.ticker.toUpperCase() == position.ticker.toUpperCase())
         .fold<double>(
           0,
           (previousValue, element) => previousValue + element.qtyOfShares,

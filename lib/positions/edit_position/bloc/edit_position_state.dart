@@ -28,25 +28,27 @@ class EditPositionState extends Equatable {
 
   bool get isNewPosition => initialPosition == null;
 
-  EditPositionState copyWith(
-      {EditPositionStatus? status,
-      Position? initialPosition,
-      String? ticker,
-      double? qtyOfShares,
-      double? cost,
-      Account? account}) {
+  EditPositionState copyWith({
+    EditPositionStatus? status,
+    Position? initialPosition,
+    String? ticker,
+    double? qtyOfShares,
+    double? cost,
+    Account? account,
+  }) {
     return EditPositionState(
-        status: status ?? this.status,
-        initialPosition: initialPosition ?? this.initialPosition,
-        ticker: ticker ?? this.ticker,
-        qtyOfShares: qtyOfShares ?? this.qtyOfShares,
-        cost: cost ?? this.cost,
-        account: account ?? this.account);
+      status: status ?? this.status,
+      initialPosition: initialPosition ?? this.initialPosition,
+      ticker: ticker ?? this.ticker,
+      qtyOfShares: qtyOfShares ?? this.qtyOfShares,
+      cost: cost ?? this.cost,
+      account: account ?? this.account,
+    );
   }
 
   @override
   List<Object?> get props =>
-      [status, initialPosition, ticker, qtyOfShares, cost];
+      [status, initialPosition, ticker, qtyOfShares, cost, account];
 }
 
 final class EditPositionMaxReached extends EditPositionState {}

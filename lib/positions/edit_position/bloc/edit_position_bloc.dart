@@ -18,6 +18,7 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
             ticker: initialPosition?.ticker ?? '',
             qtyOfShares: initialPosition?.qtyOfShares ?? 0,
             cost: initialPosition?.cost ?? 0,
+            account: initialPosition?.account,
           ),
         ) {
     on<EditPositionEvent>((event, emit) {});
@@ -36,7 +37,7 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
         ticker: state.ticker,
         qtyOfShares: state.qtyOfShares,
         cost: state.cost,
-        accountId: state.account?.id,
+        account: state.account,
       );
       if (state.isNewPosition && _portfolioRepository.maxAccountReached) {
         emit(EditPositionMaxReached());

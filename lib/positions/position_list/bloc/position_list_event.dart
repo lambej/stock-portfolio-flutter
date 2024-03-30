@@ -13,3 +13,21 @@ final class LoadPositions extends PositionListEvent {
   @override
   List<Object> get props => [];
 }
+
+final class DeletePosition extends PositionListEvent {
+  const DeletePosition(this.position);
+
+  final Position position;
+
+  @override
+  List<Object> get props => [position];
+}
+
+final class UndoDeletePosition extends PositionListEvent {
+  const UndoDeletePosition(this.position);
+
+  final Position position;
+
+  @override
+  List<Object> get props => [position];
+}

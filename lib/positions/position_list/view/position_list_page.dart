@@ -31,24 +31,65 @@ class PositionListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      body: BlocConsumer<PositionListBloc, PositionListState>(
-        listener: (context, state) {
-          if (state is PositionListError) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text(state.error.toString()),
-                ),
-              );
-          }
-        },
-        builder: (context, state) {
-          if (state is PositionListLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is PositionListLoaded) {
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<PositionListBloc, PositionListState>(
+            listenWhen: (previous, current) =>
+                current.status == PositionListStatus.failure,
+            listener: (context, state) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.positionErrorSnackbarText),
+                  ),
+                );
+            },
+          ),
+          BlocListener<PositionListBloc, PositionListState>(
+            listenWhen: (previous, current) =>
+                previous.lastDeletedPosition != current.lastDeletedPosition &&
+                current.lastDeletedPosition != null,
+            listener: (context, state) {
+              final deletedPosition = state.lastDeletedPosition!;
+              final messenger = ScaffoldMessenger.of(context);
+              messenger
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      l10n.positionDeletedSnackbarText(deletedPosition.ticker),
+                    ),
+                    action: SnackBarAction(
+                      label: l10n.positionUndoDeletionButtonText,
+                      onPressed: () {
+                        messenger.hideCurrentSnackBar();
+                        context
+                            .read<PositionListBloc>()
+                            .add(UndoDeletePosition(deletedPosition));
+                      },
+                    ),
+                  ),
+                );
+            },
+          ),
+        ],
+        child: BlocBuilder<PositionListBloc, PositionListState>(
+          builder: (context, state) {
+            if (state.positions.isEmpty) {
+              if (state.status == PositionListStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state.status != PositionListStatus.success) {
+                return const SizedBox();
+              } else {
+                return Center(
+                  child: Text(
+                    l10n.positionEmptyText,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                );
+              }
+            }
             return Center(
               child: Container(
                 constraints: const BoxConstraints(
@@ -58,17 +99,53 @@ class PositionListView extends StatelessWidget {
                   itemCount: state.positions.length,
                   itemBuilder: (context, index) {
                     final position = state.positions[index];
-                    return PositionCard(position);
+
+                    return PositionCard(
+                      position: position,
+                      onDismissed: (_) {
+                        state.positions.remove(position);
+                        context
+                            .read<PositionListBloc>()
+                            .add(DeletePosition(position));
+                      },
+                      confirmDismiss: (_) async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text(
+                                'Are you sure you want to delete?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('No'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Yes'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        return confirmed;
+                      },
+                      onTap: () {
+                        Navigator.of(context).push(
+                          EditPositionPage.route(
+                            initialPosition: position,
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
               ),
             );
-          } else {
-            return const Center(
-              child: Text('Failed to load positions'),
-            );
-          }
-        },
+          },
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(

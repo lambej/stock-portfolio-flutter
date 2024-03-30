@@ -12,20 +12,69 @@ class PositionListBloc extends Bloc<PositionListEvent, PositionListState> {
     required FinnhubRepository stockRepository,
   })  : _portfolioRepository = portfolioRepository,
         _stockRepository = stockRepository,
-        super(PositionListInitial()) {
-    on<PositionListEvent>((event, emit) {});
-
-    on<LoadPositions>((event, emit) async {
-      emit(PositionListLoading());
-
-      final accounts = await _portfolioRepository.getAccounts().first;
-      await emit.forEach<List<Position>>(
-        _portfolioRepository.getPositions(accounts, _stockRepository),
-        onData: PositionListLoaded.new,
-        onError: (_, e) => PositionListError(e),
-      );
-    });
+        super(const PositionListState()) {
+    _setupEventHandlers();
   }
+
   final PortfolioRepository _portfolioRepository;
   final FinnhubRepository _stockRepository;
+
+  void _setupEventHandlers() {
+    on<LoadPositions>(_loadPositions);
+    on<DeletePosition>(_deletePosition);
+    on<UndoDeletePosition>(_undoDeletePosition);
+  }
+
+  Future<void> _loadPositions(
+    LoadPositions event,
+    Emitter<PositionListState> emit,
+  ) async {
+    emit(state.copyWith(status: () => PositionListStatus.loading));
+
+    final accounts = await _portfolioRepository.getAccounts().first;
+    await emit.forEach<List<Position>>(
+      _portfolioRepository.getPositions(accounts, _stockRepository),
+      onData: (positions) => state.copyWith(
+        status: () => PositionListStatus.success,
+        positions: () => positions,
+      ),
+      onError: (_, __) =>
+          state.copyWith(status: () => PositionListStatus.failure),
+    );
+  }
+
+  Future<void> _deletePosition(
+    DeletePosition event,
+    Emitter<PositionListState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        lastDeletedPosition: () => event.position,
+      ),
+    );
+
+    try {
+      await _portfolioRepository.deletePosition(event.position.id);
+    } catch (e) {
+      state.positions.add(event.position);
+      emit(
+        state.copyWith(
+          positions: () => state.positions,
+          lastDeletedPosition: () => null,
+        ),
+      );
+    }
+  }
+
+  Future<void> _undoDeletePosition(
+    UndoDeletePosition event,
+    Emitter<PositionListState> emit,
+  ) async {
+    assert(
+      state.lastDeletedPosition != null,
+      'Last deleted position can not be null.',
+    );
+    await _portfolioRepository.savePosition(event.position);
+    emit(state.copyWith(lastDeletedPosition: () => null));
+  }
 }

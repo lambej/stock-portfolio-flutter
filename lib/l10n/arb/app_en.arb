@@ -37,5 +37,9 @@
     "editPositionTickerLabel": "Ticker",
     "editPositionQtyOfSharesLabel": "Qty. Of Shares",
     "positionErrorSnackbarText": "An error occurred while loading positions.",
-    "editPositionCostLabel": "Cost"
+    "editPositionCostLabel": "Cost",
+    "positionDeletedSnackbarText": "Position \"{position}\" deleted.",
+    "positionUndoDeletionButtonText": "Undo",
+    "positionErrorSnackbarText": "An error occurred while loading positions.",
+    "positionEmptyText": "No position found"
 }

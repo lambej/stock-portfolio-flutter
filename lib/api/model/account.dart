@@ -104,5 +104,5 @@ class Account extends Equatable {
   JsonMap toJson() => _$AccountToJson(this);
 
   @override
-  List<Object> get props => [id, name, description, userId];
+  List<Object?> get props => [id, name, description, userId, accountType];
 }

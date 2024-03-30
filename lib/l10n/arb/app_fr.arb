@@ -37,5 +37,9 @@
     "editPositionTickerLabel": "Cote",
     "editPositionQtyOfSharesLabel": "Qté. d'actions",
     "positionErrorSnackbarText": "Une erreur est survenu lors du chargement des positions.",
-    "editPositionCostLabel": "Coût"
+    "editPositionCostLabel": "Coût",
+    "positionDeletedSnackbarText": "La position \"{position}\" à été supprimé.",
+    "positionUndoDeletionButtonText": "Annuler",
+    "positionErrorSnackbarText": "Une erreur est survenu lors du chargement des positions.",
+    "positionEmptyText": "Aucune position trouvée"
 }

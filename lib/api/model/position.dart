@@ -34,6 +34,8 @@ class Position extends Equatable {
     this.costBasis,
     this.currentPrice,
     String? id,
+    this.account,
+    this.totalShares,
   })  : assert(
           id == null || id.isNotEmpty,
           'id must either be null or not empty',
@@ -82,13 +84,16 @@ class Position extends Equatable {
   final String userId;
 
   /// The cost basis of the `position`.
-  ///
-  /// Defaults to 0.
+  @JsonKey(includeFromJson: false)
   final double? costBasis;
 
   /// The current price of the `position`.
   @JsonKey(includeFromJson: false)
   final double? currentPrice;
+
+  /// The total shares of the `position`.
+  @JsonKey(includeFromJson: false)
+  final double? totalShares;
 
   /// Returns a copy of this `position` with the given values updated.
   Position copyWith({
@@ -101,6 +106,8 @@ class Position extends Equatable {
     String? userId,
     double? costBasis,
     double? currentPrice,
+    Account? account,
+    double? totalShares,
   }) {
     return Position(
       id: id ?? this.id,
@@ -112,6 +119,8 @@ class Position extends Equatable {
       userId: userId ?? this.userId,
       costBasis: costBasis ?? this.costBasis,
       currentPrice: currentPrice ?? this.currentPrice,
+      account: account ?? this.account,
+      totalShares: totalShares ?? this.totalShares,
     );
   }
 
@@ -132,13 +141,28 @@ class Position extends Equatable {
     return copyWith(costBasis: cb);
   }
 
+  /// Set Total Shares of the `position`.
+  Position setTotalShares(double ts) {
+    return copyWith(totalShares: ts);
+  }
+
   Position setStockInfo(StockModel stockInfo) {
     return copyWith(
       currentPrice: stockInfo.currentPrice,
     );
   }
 
+  double get profit {
+    if (costBasis != null && costBasis != 0) {
+      return (currentPrice! - costBasis!) / costBasis! * 100;
+    } else {
+      return 0;
+    }
+  }
+
+  double get marketValue => currentPrice! * qtyOfShares;
+
   @override
-  List<Object> get props =>
-      [id, ticker, qtyOfShares, cost, currency, accountId, userId];
+  List<Object?> get props =>
+      [id, ticker, qtyOfShares, cost, currency, accountId, userId, account];
 }
