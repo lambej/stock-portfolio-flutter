@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
@@ -23,20 +24,27 @@ class PositionListBloc extends Bloc<PositionListEvent, PositionListState> {
     on<LoadPositions>(_loadPositions);
     on<DeletePosition>(_deletePosition);
     on<UndoDeletePosition>(_undoDeletePosition);
+    on<PositionListAccountsFilterChanged>(_onAccountsFilterChanged);
   }
 
   Future<void> _loadPositions(
     LoadPositions event,
     Emitter<PositionListState> emit,
   ) async {
+    late var accountFilter = state.accountsFilter;
+    final accounts = await _portfolioRepository.getAccounts().first;
+    if (state.status == PositionListStatus.initial && accountFilter.isEmpty) {
+      accountFilter = accounts;
+    }
     emit(state.copyWith(status: () => PositionListStatus.loading));
 
-    final accounts = await _portfolioRepository.getAccounts().first;
     await emit.forEach<List<Position>>(
-      _portfolioRepository.getPositions(accounts, _stockRepository),
+      _portfolioRepository.getPositions(accountFilter, _stockRepository),
       onData: (positions) => state.copyWith(
         status: () => PositionListStatus.success,
         positions: () => positions,
+        accounts: accounts,
+        accountsFilter: accountFilter,
       ),
       onError: (_, __) =>
           state.copyWith(status: () => PositionListStatus.failure),
@@ -54,6 +62,7 @@ class PositionListBloc extends Bloc<PositionListEvent, PositionListState> {
     );
 
     try {
+      // TODO: Should delete all positions with the same ticker within the account filter
       await _portfolioRepository.deletePosition(event.position.id);
     } catch (e) {
       state.positions.add(event.position);
@@ -76,5 +85,12 @@ class PositionListBloc extends Bloc<PositionListEvent, PositionListState> {
     );
     await _portfolioRepository.savePosition(event.position);
     emit(state.copyWith(lastDeletedPosition: () => null));
+  }
+
+  Future<void> _onAccountsFilterChanged(
+    PositionListAccountsFilterChanged event,
+    Emitter<PositionListState> emit,
+  ) async {
+    emit(state.copyWith(accountsFilter: event.accountsFilter));
   }
 }

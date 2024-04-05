@@ -31,3 +31,12 @@ final class UndoDeletePosition extends PositionListEvent {
   @override
   List<Object> get props => [position];
 }
+
+final class PositionListAccountsFilterChanged extends PositionListEvent {
+  const PositionListAccountsFilterChanged(this.accountsFilter);
+
+  final List<Account> accountsFilter;
+
+  @override
+  List<Object> get props => [accountsFilter];
+}

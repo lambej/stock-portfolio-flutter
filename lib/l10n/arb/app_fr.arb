@@ -41,5 +41,8 @@
     "positionDeletedSnackbarText": "La position \"{position}\" à été supprimé.",
     "positionUndoDeletionButtonText": "Annuler",
     "positionErrorSnackbarText": "Une erreur est survenu lors du chargement des positions.",
-    "positionEmptyText": "Aucune position trouvée"
+    "positionEmptyText": "Aucune position trouvée",
+    "accountsAppBarTitle": "Comptes",
+    "cancel": "Annuler",
+    "ok": "Ok"
 }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
 import 'package:stock_portfolio/positions/edit_position/edit_position.dart';
 import 'package:stock_portfolio/positions/position_list/bloc/position_list_bloc.dart';
+import 'package:stock_portfolio/positions/position_list/widget/account_filter_button.dart';
 import 'package:stock_portfolio/positions/position_list/widget/widget.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
@@ -76,74 +77,85 @@ class PositionListView extends StatelessWidget {
         ],
         child: BlocBuilder<PositionListBloc, PositionListState>(
           builder: (context, state) {
-            if (state.positions.isEmpty) {
-              if (state.status == PositionListStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state.status != PositionListStatus.success) {
-                return const SizedBox();
-              } else {
-                return Center(
-                  child: Text(
-                    l10n.positionEmptyText,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                );
-              }
-            }
-            return Center(
-              child: Container(
-                constraints: const BoxConstraints(
-                  maxWidth: 600,
-                ), // Set the maximum width here
-                child: ListView.builder(
-                  itemCount: state.positions.length,
-                  itemBuilder: (context, index) {
-                    final position = state.positions[index];
+            if (state.status == PositionListStatus.loading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state.status != PositionListStatus.success) {
+              return const SizedBox();
+            } else {
+              return Center(
+                child: Container(
+                  constraints: const BoxConstraints(
+                    maxWidth: 600,
+                  ), // Set the maximum width here
+                  child: Column(
+                    children: [
+                      AccountFilterButton(
+                        accounts: state.accounts,
+                        initialValue: state.accountsFilter,
+                        onChanged: (List<Account> results) {
+                          context.read<PositionListBloc>().add(
+                                PositionListAccountsFilterChanged(results),
+                              );
+                          context
+                              .read<PositionListBloc>()
+                              .add(const LoadPositions());
+                        },
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: state.positions.length,
+                          itemBuilder: (context, index) {
+                            final position = state.positions[index];
 
-                    return PositionCard(
-                      position: position,
-                      onDismissed: (_) {
-                        state.positions.remove(position);
-                        context
-                            .read<PositionListBloc>()
-                            .add(DeletePosition(position));
-                      },
-                      confirmDismiss: (_) async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text(
-                                'Are you sure you want to delete?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('No'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Yes'),
-                                ),
-                              ],
+                            return PositionCard(
+                              position: position,
+                              onDismissed: (_) {
+                                state.positions.remove(position);
+                                context
+                                    .read<PositionListBloc>()
+                                    .add(DeletePosition(position));
+                              },
+                              confirmDismiss: (_) async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text(
+                                        'Are you sure you want to delete?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text('No'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: const Text('Yes'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                return confirmed;
+                              },
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  EditPositionPage.route(
+                                    initialPosition: position,
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                        return confirmed;
-                      },
-                      onTap: () {
-                        Navigator.of(context).push(
-                          EditPositionPage.route(
-                            initialPosition: position,
-                          ),
-                        );
-                      },
-                    );
-                  },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           },
         ),
       ),

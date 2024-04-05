@@ -41,5 +41,8 @@
     "positionDeletedSnackbarText": "Position \"{position}\" deleted.",
     "positionUndoDeletionButtonText": "Undo",
     "positionErrorSnackbarText": "An error occurred while loading positions.",
-    "positionEmptyText": "No position found"
+    "positionEmptyText": "No position found",
+    "accountsAppBarTitle": "Accounts",
+    "cancel": "Cancel",
+    "ok": "Ok"
 }
