@@ -20,20 +20,10 @@ class PositionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Dismissible(
-      key: Key('positionCard_dismissible_${position.id}'),
-      onDismissed: onDismissed,
-      confirmDismiss: confirmDismiss,
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        color: theme.colorScheme.error,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: const Icon(
-          Icons.delete,
-          color: Color(0xAAFFFFFF),
-        ),
-      ),
+    return Container(
+      alignment: Alignment.centerRight,
+      color: theme.colorScheme.error,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
         onTap: onTap,
         child: Card(
