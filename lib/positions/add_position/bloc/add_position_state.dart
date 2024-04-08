@@ -1,54 +1,60 @@
-part of 'edit_position_bloc.dart';
+part of 'add_position_bloc.dart';
 
-enum EditPositionStatus { initial, loading, success, failure }
+enum AddPositionStatus { initial, loading, success, failure }
 
-extension EditPositionStatusX on EditPositionStatus {
+enum PositionAction { buy, sell }
+
+extension AddPositionStatusX on AddPositionStatus {
   bool get isLoadingOrSuccess => [
-        EditPositionStatus.loading,
-        EditPositionStatus.success,
+        AddPositionStatus.loading,
+        AddPositionStatus.success,
       ].contains(this);
 }
 
-class EditPositionState extends Equatable {
-  const EditPositionState({
-    this.status = EditPositionStatus.initial,
+class AddPositionState extends Equatable {
+  const AddPositionState({
+    this.status = AddPositionStatus.initial,
     this.initialPosition,
     this.ticker = '',
     this.qtyOfShares = 0,
     this.cost = 0,
     this.account,
+    this.action = PositionAction.buy,
   });
 
-  final EditPositionStatus status;
+  final AddPositionStatus status;
   final Position? initialPosition;
   final String ticker;
   final double qtyOfShares;
   final double cost;
   final Account? account;
+  final PositionAction action;
 
   bool get isNewPosition => initialPosition == null;
 
-  EditPositionState copyWith({
-    EditPositionStatus? status,
+  AddPositionState copyWith({
+    AddPositionStatus? status,
     Position? initialPosition,
     String? ticker,
     double? qtyOfShares,
     double? cost,
     Account? account,
+    PositionAction? action,
   }) {
-    return EditPositionState(
+    return AddPositionState(
       status: status ?? this.status,
       initialPosition: initialPosition ?? this.initialPosition,
       ticker: ticker ?? this.ticker,
       qtyOfShares: qtyOfShares ?? this.qtyOfShares,
       cost: cost ?? this.cost,
       account: account ?? this.account,
+      action: action ?? this.action,
     );
   }
 
   @override
   List<Object?> get props =>
-      [status, initialPosition, ticker, qtyOfShares, cost, account];
+      [status, initialPosition, ticker, qtyOfShares, cost, account, action];
 }
 
-final class EditPositionMaxReached extends EditPositionState {}
+final class AddPositionMaxReached extends AddPositionState {}

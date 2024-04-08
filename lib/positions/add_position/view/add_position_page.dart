@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
-import 'package:stock_portfolio/positions/edit_position/edit_position.dart';
+import 'package:stock_portfolio/positions/add_position/add_position.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/shared/shared.dart';
 
-class EditPositionPage extends StatelessWidget {
-  const EditPositionPage({super.key});
+class AddPositionPage extends StatelessWidget {
+  const AddPositionPage({super.key});
 
   static Route<Position> route({Position? initialPosition}) {
     return MaterialPageRoute(
       fullscreenDialog: true,
       builder: (context) => BlocProvider(
-        create: (context) => EditPositionBloc(
+        create: (context) => AddPositionBloc(
           portfolioRepository: context.read<PortfolioRepository>(),
           initialPosition: initialPosition,
         ),
-        child: const EditPositionPage(),
+        child: const AddPositionPage(),
       ),
     );
   }
@@ -28,10 +28,10 @@ class EditPositionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<EditPositionBloc, EditPositionState>(
+        BlocListener<AddPositionBloc, AddPositionState>(
           listenWhen: (previous, current) =>
               current.status != previous.status &&
-              current.status == EditPositionStatus.success,
+              current.status == AddPositionStatus.success,
           listener: (context, state) => Navigator.of(context).pop(
             state.initialPosition?.copyWith(
               ticker: state.ticker,
@@ -40,9 +40,9 @@ class EditPositionPage extends StatelessWidget {
             ),
           ),
         ),
-        BlocListener<EditPositionBloc, EditPositionState>(
+        BlocListener<AddPositionBloc, AddPositionState>(
           listener: (context, state) {
-            if (state is EditPositionMaxReached) {
+            if (state is AddPositionMaxReached) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   elevation: 5,
@@ -52,7 +52,7 @@ class EditPositionPage extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: AppLocalizations.of(context)
-                              .editPositionMaxPositionSnackBar,
+                              .addPositionMaxPositionSnackBar,
                         ),
                         TextSpan(
                           text: ' balancify.app',
@@ -74,21 +74,21 @@ class EditPositionPage extends StatelessWidget {
           },
         ),
       ],
-      child: const EditPositionView(),
+      child: const AddPositionView(),
     );
   }
 }
 
-class EditPositionView extends StatelessWidget {
-  const EditPositionView({super.key});
+class AddPositionView extends StatelessWidget {
+  const AddPositionView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final isSuccess = context.select((EditPositionBloc bloc) =>
-        bloc.state.status == EditPositionStatus.success);
+    final isSuccess = context.select((AddPositionBloc bloc) =>
+        bloc.state.status == AddPositionStatus.success);
     final isNewPosition = context.select(
-      (EditPositionBloc bloc) => bloc.state.isNewPosition,
+      (AddPositionBloc bloc) => bloc.state.isNewPosition,
     );
     final theme = Theme.of(context);
     final floatingActionButtonTheme = theme.floatingActionButtonTheme;
@@ -99,12 +99,12 @@ class EditPositionView extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           isNewPosition
-              ? l10n.editPositionAddAppBarTitle
-              : l10n.editPositionEditAppBarTitle,
+              ? l10n.addPositionAddAppBarTitle
+              : l10n.addPositionEditAppBarTitle,
         ),
       ),
       floatingActionButton: Tooltip(
-        message: l10n.editPositionSaveButtonTooltip,
+        message: l10n.addPositionSaveButtonTooltip,
         child: MaterialButton(
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(32)),
@@ -117,8 +117,8 @@ class EditPositionView extends StatelessWidget {
               : () {
                   if (formKey.currentState!.validate()) {
                     context
-                        .read<EditPositionBloc>()
-                        .add(const EditPositionSubmitted());
+                        .read<AddPositionBloc>()
+                        .add(const AddPositionSubmitted());
                   }
                 },
           child: isSuccess
@@ -136,6 +136,7 @@ class EditPositionView extends StatelessWidget {
                 children: [
                   _AccountField(),
                   _TickerField(),
+                  _ActionField(),
                   _QtyOfSharesField(),
                   _CostField(),
                 ],
@@ -154,7 +155,7 @@ class _AccountField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final state = context.watch<EditPositionBloc>().state;
+    final state = context.watch<AddPositionBloc>().state;
     final hintText = state.initialPosition?.account?.name;
 
     return StreamBuilder<List<Account>>(
@@ -164,7 +165,7 @@ class _AccountField extends StatelessWidget {
           final isStateTypeExists =
               snapshot.data!.any((account) => account.id == state.account?.id);
           return DropdownButtonFormField<Account>(
-            key: const Key('editPositionView_account_dropdownFormField'),
+            key: const Key('AddPositionView_account_dropdownFormField'),
             value: isStateTypeExists ? state.account : null,
             items: snapshot.data!.map((account) {
               return DropdownMenuItem<Account>(
@@ -178,8 +179,8 @@ class _AccountField extends StatelessWidget {
               hintText: hintText,
             ),
             onChanged: (Account? value) => context
-                .read<EditPositionBloc>()
-                .add(EditPositionAccountChanged(account: value!)),
+                .read<AddPositionBloc>()
+                .add(AddPositionAccountChanged(account: value!)),
             validator: (Account? value) {
               if (value == null) {
                 return l10n.editAccountMissingType;
@@ -197,21 +198,57 @@ class _AccountField extends StatelessWidget {
   }
 }
 
+class _ActionField extends StatelessWidget {
+  const _ActionField();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final state = context.watch<AddPositionBloc>().state;
+    final hintText = state.action.toString();
+
+    return DropdownButtonFormField<PositionAction>(
+      key: const Key('AddPositionView_action_dropdownFormField'),
+      value: state.action,
+      items: PositionAction.values.map((action) {
+        return DropdownMenuItem<PositionAction>(
+          value: action,
+          child: Text(action.toString()),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+        enabled: !state.status.isLoadingOrSuccess,
+        labelText: l10n.editAccountTypeLabel,
+        hintText: hintText,
+      ),
+      onChanged: (PositionAction? value) => context
+          .read<AddPositionBloc>()
+          .add(AddPositionActionChanged(action: value!)),
+      validator: (PositionAction? value) {
+        if (value == null) {
+          return l10n.editAccountMissingType;
+        }
+        return null;
+      },
+    );
+  }
+}
+
 class _TickerField extends StatelessWidget {
   const _TickerField();
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final state = context.watch<EditPositionBloc>().state;
+    final state = context.watch<AddPositionBloc>().state;
     final hintText = state.initialPosition?.ticker ?? '';
 
     return TextFormField(
-      key: const Key('editPositionView_ticker_textFormField'),
+      key: const Key('AddPositionView_ticker_textFormField'),
       initialValue: state.ticker,
       decoration: InputDecoration(
-        enabled: state.status != EditPositionStatus.success,
-        labelText: l10n.editPositionTickerLabel,
+        enabled: state.status != AddPositionStatus.success,
+        labelText: l10n.addPositionTickerLabel,
         hintText: hintText,
       ),
       maxLength: 50,
@@ -221,8 +258,8 @@ class _TickerField extends StatelessWidget {
       ],
       onChanged: (value) {
         context
-            .read<EditPositionBloc>()
-            .add(EditPositionTickerChanged(ticker: value));
+            .read<AddPositionBloc>()
+            .add(AddPositionTickerChanged(ticker: value));
       },
     );
   }
@@ -234,15 +271,15 @@ class _QtyOfSharesField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final state = context.watch<EditPositionBloc>().state;
+    final state = context.watch<AddPositionBloc>().state;
     final hintText = state.initialPosition?.qtyOfShares.toString() ?? '0';
 
     return TextFormField(
-      key: const Key('editPositionView_qtyOfShares_textFormField'),
+      key: const Key('AddPositionView_qtyOfShares_textFormField'),
       initialValue: state.qtyOfShares.toString(),
       decoration: InputDecoration(
-        enabled: state.status != EditPositionStatus.success,
-        labelText: l10n.editPositionQtyOfSharesLabel,
+        enabled: state.status != AddPositionStatus.success,
+        labelText: l10n.addPositionQtyOfSharesLabel,
         hintText: hintText,
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -250,8 +287,8 @@ class _QtyOfSharesField extends StatelessWidget {
         FilteringTextInputFormatter.digitsOnly,
       ],
       onChanged: (value) {
-        context.read<EditPositionBloc>().add(
-              EditPositionQtyOfSharesChanged(
+        context.read<AddPositionBloc>().add(
+              AddPositionQtyOfSharesChanged(
                 qtyOfShares: double.parse(value),
               ),
             );
@@ -266,15 +303,15 @@ class _CostField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final state = context.watch<EditPositionBloc>().state;
+    final state = context.watch<AddPositionBloc>().state;
     final hintText = state.initialPosition?.cost.toString() ?? '0';
 
     return TextFormField(
-      key: const Key('editPositionView_cost_textFormField'),
+      key: const Key('AddPositionView_cost_textFormField'),
       initialValue: state.cost.toString(),
       decoration: InputDecoration(
-        enabled: state.status != EditPositionStatus.success,
-        labelText: l10n.editPositionCostLabel,
+        enabled: state.status != AddPositionStatus.success,
+        labelText: l10n.addPositionCostLabel,
         hintText: hintText,
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -282,8 +319,8 @@ class _CostField extends StatelessWidget {
         FilteringTextInputFormatter.digitsOnly,
       ],
       onChanged: (value) {
-        context.read<EditPositionBloc>().add(
-              EditPositionCostChanged(
+        context.read<AddPositionBloc>().add(
+              AddPositionCostChanged(
                 cost: double.parse(value),
               ),
             );

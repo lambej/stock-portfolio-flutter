@@ -66,7 +66,8 @@ class PositionCard extends StatelessWidget {
                           children: [
                             Text('Price \$${position.currentPrice}'),
                             const SizedBox(),
-                            Text('P&L %: ${position.profit}%'),
+                            Text(
+                                'P&L %: ${position.profit.toStringAsFixed(2)}%'),
                             const SizedBox(),
                           ],
                         ),

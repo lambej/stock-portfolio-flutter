@@ -4,16 +4,16 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 
-part 'edit_position_event.dart';
-part 'edit_position_state.dart';
+part 'add_position_event.dart';
+part 'add_position_state.dart';
 
-class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
-  EditPositionBloc({
+class AddPositionBloc extends Bloc<AddPositionEvent, AddPositionState> {
+  AddPositionBloc({
     required PortfolioRepository portfolioRepository,
     required Position? initialPosition,
   })  : _portfolioRepository = portfolioRepository,
         super(
-          EditPositionState(
+          AddPositionState(
             initialPosition: initialPosition,
             ticker: initialPosition?.ticker ?? '',
             qtyOfShares: initialPosition?.qtyOfShares ?? 0,
@@ -21,9 +21,9 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
             account: initialPosition?.account,
           ),
         ) {
-    on<EditPositionEvent>((event, emit) {});
+    on<AddPositionEvent>((event, emit) {});
 
-    on<EditPositionSubmitted>((event, emit) async {
+    on<AddPositionSubmitted>((event, emit) async {
       final position = (state.initialPosition ??
               Position(
                 ticker: '',
@@ -35,31 +35,34 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
               ))
           .copyWith(
         ticker: state.ticker,
-        qtyOfShares: state.qtyOfShares,
+        qtyOfShares: state.action == PositionAction.buy
+            ? state.qtyOfShares
+            : -state.qtyOfShares,
         cost: state.cost,
         account: state.account,
       );
       if (state.isNewPosition && _portfolioRepository.maxAccountReached) {
-        emit(EditPositionMaxReached());
+        emit(AddPositionMaxReached());
         return;
       }
       try {
         await _portfolioRepository.savePosition(position);
-        emit(state.copyWith(status: EditPositionStatus.success));
+        emit(state.copyWith(status: AddPositionStatus.success));
       } catch (e) {
-        emit(state.copyWith(status: EditPositionStatus.failure));
+        emit(state.copyWith(status: AddPositionStatus.failure));
       }
     });
-    on<EditPositionTickerChanged>(_onTickerChanged);
-    on<EditPositionAccountChanged>(_onAccountChanged);
-    on<EditPositionQtyOfSharesChanged>(_onQtyOfSharesChanged);
-    on<EditPositionCostChanged>(_onCostChanged);
+    on<AddPositionTickerChanged>(_onTickerChanged);
+    on<AddPositionAccountChanged>(_onAccountChanged);
+    on<AddPositionQtyOfSharesChanged>(_onQtyOfSharesChanged);
+    on<AddPositionCostChanged>(_onCostChanged);
+    on<AddPositionActionChanged>(_onActionChanged);
   }
   final PortfolioRepository _portfolioRepository;
 
   void _onTickerChanged(
-    EditPositionTickerChanged event,
-    Emitter<EditPositionState> emit,
+    AddPositionTickerChanged event,
+    Emitter<AddPositionState> emit,
   ) {
     emit(
       state.copyWith(ticker: event.ticker),
@@ -67,8 +70,8 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
   }
 
   void _onAccountChanged(
-    EditPositionAccountChanged event,
-    Emitter<EditPositionState> emit,
+    AddPositionAccountChanged event,
+    Emitter<AddPositionState> emit,
   ) {
     emit(
       state.copyWith(account: event.account),
@@ -76,8 +79,8 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
   }
 
   void _onQtyOfSharesChanged(
-    EditPositionQtyOfSharesChanged event,
-    Emitter<EditPositionState> emit,
+    AddPositionQtyOfSharesChanged event,
+    Emitter<AddPositionState> emit,
   ) {
     emit(
       state.copyWith(qtyOfShares: event.qtyOfShares),
@@ -85,11 +88,20 @@ class EditPositionBloc extends Bloc<EditPositionEvent, EditPositionState> {
   }
 
   void _onCostChanged(
-    EditPositionCostChanged event,
-    Emitter<EditPositionState> emit,
+    AddPositionCostChanged event,
+    Emitter<AddPositionState> emit,
   ) {
     emit(
       state.copyWith(cost: event.cost),
+    );
+  }
+
+  void _onActionChanged(
+    AddPositionActionChanged event,
+    Emitter<AddPositionState> emit,
+  ) {
+    emit(
+      state.copyWith(action: event.action),
     );
   }
 }

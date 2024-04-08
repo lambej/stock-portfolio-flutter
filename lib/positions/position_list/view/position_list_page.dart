@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
-import 'package:stock_portfolio/positions/edit_position/edit_position.dart';
+import 'package:stock_portfolio/positions/add_position/add_position.dart';
 import 'package:stock_portfolio/positions/position_list/bloc/position_list_bloc.dart';
 import 'package:stock_portfolio/positions/position_list/widget/account_filter_button.dart';
 import 'package:stock_portfolio/positions/position_list/widget/widget.dart';
@@ -109,44 +109,6 @@ class PositionListView extends StatelessWidget {
 
                             return PositionCard(
                               position: position,
-                              onDismissed: (_) {
-                                state.positions.remove(position);
-                                context
-                                    .read<PositionListBloc>()
-                                    .add(DeletePosition(position));
-                              },
-                              confirmDismiss: (_) async {
-                                final confirmed = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text(
-                                        'Are you sure you want to delete?',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text('No'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          child: const Text('Yes'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                                return confirmed;
-                              },
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  EditPositionPage.route(
-                                    initialPosition: position,
-                                  ),
-                                );
-                              },
                             );
                           },
                         ),
@@ -161,10 +123,10 @@ class PositionListView extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
-        key: const Key('Overview_addPosition_floatingActionButton'),
+        key: const Key('PositionList_addPosition_floatingActionButton'),
         shape: const StadiumBorder(),
         onPressed: () {
-          Navigator.of(context).push(EditPositionPage.route());
+          Navigator.of(context).push(AddPositionPage.route());
         },
         child: const Icon(Icons.add),
       ),

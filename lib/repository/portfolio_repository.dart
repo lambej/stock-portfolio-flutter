@@ -222,11 +222,14 @@ class PortfolioRepository {
       Position position, List<Account> accounts) async {
     final positions = await _portfolioApi.getPositions(accounts).first;
     final totalCost = positions
-        .where((element) =>
-            element.ticker.toUpperCase() == position.ticker.toUpperCase())
+        .where(
+          (element) =>
+              element.ticker.toUpperCase() == position.ticker.toUpperCase(),
+        )
         .fold<double>(
           0,
-          (previousValue, element) => previousValue + element.cost,
+          (previousValue, element) =>
+              previousValue + element.cost * element.qtyOfShares,
         );
     final totalQty = positions
         .where((element) =>
