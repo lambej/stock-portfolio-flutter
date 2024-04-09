@@ -83,17 +83,17 @@ android {
         production {
             dimension "default"
             applicationIdSuffix ""
-            manifestPlaceholders = [appName: "Cloud Clipboard"]
+            manifestPlaceholders = [appName: "Stock Portfolio"]
         }
         staging {
             dimension "default"
             applicationIdSuffix ".stg"
-            manifestPlaceholders = [appName: "[STG] Cloud Clipboard"]
+            manifestPlaceholders = [appName: "[STG] Stock Portfolio"]
         }
         development {
             dimension "default"
             applicationIdSuffix ".dev"
-            manifestPlaceholders = [appName: "[DEV] Cloud Clipboard"]
+            manifestPlaceholders = [appName: "[DEV] Stock Portfolio"]
         }
     }
 

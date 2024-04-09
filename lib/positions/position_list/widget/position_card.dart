@@ -18,11 +18,8 @@ class PositionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       alignment: Alignment.centerRight,
-      color: theme.colorScheme.error,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
         onTap: onTap,
@@ -41,38 +38,62 @@ class PositionCard extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Text(
                         position.ticker,
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: MediaQuery.of(context).size.width < 500
+                            ? Theme.of(context).textTheme.titleSmall
+                            : Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
                     Table(
                       columnWidths: const {
-                        0: FlexColumnWidth(4),
+                        0: FlexColumnWidth(10),
                         1: FlexColumnWidth(),
-                        2: FlexColumnWidth(3),
+                        2: FlexColumnWidth(10),
                         3: FlexColumnWidth(),
                       },
                       children: [
                         TableRow(
                           children: [
-                            Text('Price \$${position.currentPrice}'),
+                            Text(
+                              'Price: \$${position.currentPrice}',
+                              style: MediaQuery.of(context).size.width < 500
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(),
                             Text(
-                                'P&L %: ${position.profit.toStringAsFixed(2)}%'),
+                              'P&L %: ${position.profit.toStringAsFixed(2)}%',
+                              style: MediaQuery.of(context).size.width < 500
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(),
                           ],
                         ),
                         TableRow(
                           children: [
-                            Text('Shares: ${position.totalShares}'),
+                            Text(
+                              'Shares: ${position.totalShares}',
+                              style: MediaQuery.of(context).size.width < 500
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(),
-                            Text('MV: \$${position.marketValue}'),
+                            Text(
+                              'MV: \$${position.marketValue}',
+                              style: MediaQuery.of(context).size.width < 500
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(),
                           ],
                         ),
                         TableRow(
                           children: [
                             Text(
-                              'Cost Basis: \$${position.costBasis ?? position.cost}',
+                              'CB: \$${position.costBasis ?? position.cost}',
+                              style: MediaQuery.of(context).size.width < 500
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(),
                             const Text(''),

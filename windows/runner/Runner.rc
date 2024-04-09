@@ -95,7 +95,7 @@ BEGIN
             VALUE "InternalName", "stock_portfolio" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.theoptionsgeek.cloud-clipboard. All rights reserved." "\0"
             VALUE "OriginalFilename", "stock_portfolio.exe" "\0"
-            VALUE "ProductName", "Cloud Clipboard" "\0"
+            VALUE "ProductName", "Stock Portfolio" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

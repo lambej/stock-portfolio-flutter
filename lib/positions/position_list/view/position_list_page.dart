@@ -89,17 +89,20 @@ class PositionListView extends StatelessWidget {
                   ), // Set the maximum width here
                   child: Column(
                     children: [
-                      AccountFilterButton(
-                        accounts: state.accounts,
-                        initialValue: state.accountsFilter,
-                        onChanged: (List<Account> results) {
-                          context.read<PositionListBloc>().add(
-                                PositionListAccountsFilterChanged(results),
-                              );
-                          context
-                              .read<PositionListBloc>()
-                              .add(const LoadPositions());
-                        },
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: AccountFilterButton(
+                          accounts: state.accounts,
+                          initialValue: state.accountsFilter,
+                          onChanged: (List<Account> results) {
+                            context.read<PositionListBloc>().add(
+                                  PositionListAccountsFilterChanged(results),
+                                );
+                            context
+                                .read<PositionListBloc>()
+                                .add(const LoadPositions());
+                          },
+                        ),
                       ),
                       Expanded(
                         child: ListView.builder(
