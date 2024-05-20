@@ -8,6 +8,7 @@ import 'package:stock_portfolio/l10n/l10n.dart';
 import 'package:stock_portfolio/overview/overview.dart';
 import 'package:stock_portfolio/positions/position_list/bloc/position_list_bloc.dart';
 import 'package:stock_portfolio/positions/position_list/view/position_list_page.dart';
+import 'package:stock_portfolio/positions/positions/view/positions_page.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 //import 'package:stock_portfolio/portfolio_repository.dart';
 
@@ -67,7 +68,7 @@ class _HomeViewState extends State<HomePage> {
       drawer: const AppStructure(),
       body: IndexedStack(
         index: selectedTab.index,
-        children: const [PositionListPage(), AccountsPage(), Text('Charts')],
+        children: const [PositionsPage(), AccountsPage(), Text('Charts')],
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),

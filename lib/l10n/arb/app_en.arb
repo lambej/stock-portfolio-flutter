@@ -44,5 +44,8 @@
     "positionEmptyText": "No position found",
     "accountsAppBarTitle": "Accounts",
     "cancel": "Cancel",
-    "ok": "Ok"
+    "ok": "Ok",
+    "transactions": "Transactions",
+    "positions": "Positions",
+    "currency": "Currency"
 }

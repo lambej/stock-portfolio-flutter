@@ -20,6 +20,7 @@ class AddPositionState extends Equatable {
     this.cost = 0,
     this.account,
     this.action = PositionAction.buy,
+    this.currency = Currency.usd,
   });
 
   final AddPositionStatus status;
@@ -29,6 +30,7 @@ class AddPositionState extends Equatable {
   final double cost;
   final Account? account;
   final PositionAction action;
+  final Currency currency;
 
   bool get isNewPosition => initialPosition == null;
 
@@ -40,6 +42,7 @@ class AddPositionState extends Equatable {
     double? cost,
     Account? account,
     PositionAction? action,
+    Currency? currency,
   }) {
     return AddPositionState(
       status: status ?? this.status,
@@ -49,12 +52,21 @@ class AddPositionState extends Equatable {
       cost: cost ?? this.cost,
       account: account ?? this.account,
       action: action ?? this.action,
+      currency: currency ?? this.currency,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [status, initialPosition, ticker, qtyOfShares, cost, account, action];
+  List<Object?> get props => [
+        status,
+        initialPosition,
+        ticker,
+        qtyOfShares,
+        cost,
+        account,
+        action,
+        currency
+      ];
 }
 
 final class AddPositionMaxReached extends AddPositionState {}

@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_portfolio/api/model/currency_enum.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
 import 'package:stock_portfolio/positions/add_position/add_position.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
@@ -137,6 +138,7 @@ class AddPositionView extends StatelessWidget {
                   _AccountField(),
                   _TickerField(),
                   _ActionField(),
+                  _CurrencyField(),
                   _QtyOfSharesField(),
                   _CostField(),
                 ],
@@ -234,6 +236,42 @@ class _ActionField extends StatelessWidget {
   }
 }
 
+class _CurrencyField extends StatelessWidget {
+  const _CurrencyField();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final state = context.watch<AddPositionBloc>().state;
+    final hintText = state.action.toString();
+
+    return DropdownButtonFormField<Currency>(
+      key: const Key('AddPositionView_currency_dropdownFormField'),
+      value: state.currency,
+      items: Currency.values.map((currency) {
+        return DropdownMenuItem<Currency>(
+          value: currency,
+          child: Text(currency.toString()),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+        enabled: !state.status.isLoadingOrSuccess,
+        labelText: l10n.editAccountTypeLabel,
+        hintText: hintText,
+      ),
+      onChanged: (Currency? value) => context
+          .read<AddPositionBloc>()
+          .add(AddPositionCurrencyChanged(currency: value!)),
+      validator: (Currency? value) {
+        if (value == null) {
+          return l10n.editAccountMissingType;
+        }
+        return null;
+      },
+    );
+  }
+}
+
 class _TickerField extends StatelessWidget {
   const _TickerField();
 
@@ -254,7 +292,7 @@ class _TickerField extends StatelessWidget {
       maxLength: 50,
       inputFormatters: [
         LengthLimitingTextInputFormatter(50),
-        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')),
+        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.-]')),
       ],
       onChanged: (value) {
         context
@@ -284,7 +322,7 @@ class _QtyOfSharesField extends StatelessWidget {
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
+        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,4}')),
       ],
       onChanged: (value) {
         context.read<AddPositionBloc>().add(
@@ -316,7 +354,7 @@ class _CostField extends StatelessWidget {
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
+        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,4}')),
       ],
       onChanged: (value) {
         context.read<AddPositionBloc>().add(

@@ -42,7 +42,7 @@ class StockModel extends Equatable {
         requestDateTime,
       ];
 
-  static StockModel generateModel(String tickerSymbol, dynamic json) {
+  static StockModel generateUSModel(String tickerSymbol, dynamic json) {
     return StockModel(
       tickerSymbol: tickerSymbol,
       currentPrice: json['c'].toDouble() as double,
@@ -76,5 +76,31 @@ class StockModel extends Equatable {
       stockCondition = BullBearCondition.neutral;
     }
     return stockCondition;
+  }
+
+  static Future<StockModel> generateCADModel(
+      String searchString, dynamic apiResponseJson) {
+    return Future.value(
+      StockModel(
+        tickerSymbol: searchString,
+        currentPrice: double.parse(
+            apiResponseJson['Global Quote']['05. price'] as String),
+        highPriceDay:
+            double.parse(apiResponseJson['Global Quote']['03. high'] as String),
+        lowPriceDay:
+            double.parse(apiResponseJson['Global Quote']['04. low'] as String),
+        openPriceDay:
+            double.parse(apiResponseJson['Global Quote']['02. open'] as String),
+        previousClosePrice: double.parse(
+            apiResponseJson['Global Quote']['08. previous close'] as String),
+        bullBearCondition: _mapBullBearStockCondition(
+          double.parse(apiResponseJson['Global Quote']['05. price'] as String),
+          double.parse(
+              apiResponseJson['Global Quote']['08. previous close'] as String),
+        ),
+        requestUnixTimestampSeconds: DateTime.now().millisecondsSinceEpoch,
+        requestDateTime: DateTime.now(),
+      ),
+    );
   }
 }

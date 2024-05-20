@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:stock_portfolio/api/model/currency_enum.dart';
+import 'package:stock_portfolio/api/service/user_shared_pref_service.dart';
 import 'package:stock_portfolio/authentication/authentication.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
@@ -16,9 +18,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     required AuthenticationRepository authenticationRepository,
     required FinnhubRepository stockRepository,
     required PortfolioRepository portfolioRepository,
+    required UserSharedPrefService userSharedPrefService,
   })  : _authenticationRepository = authenticationRepository,
         _stockRepository = stockRepository,
         _portfolioRepository = portfolioRepository,
+        _userSharedPrefService = userSharedPrefService,
         super(
           authenticationRepository.currentUser.isNotEmpty
               ? AppState.authenticated(authenticationRepository.currentUser)
@@ -27,6 +31,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     on<_AppUserChanged>(_onUserChanged);
     on<AppLoaded>((event, emit) => emit(AppState.appLoaded(event.user)));
     on<AppLogoutRequested>(_onLogoutRequested);
+    on<AppCurrencyChanged>((event, emit) {
+      _userSharedPrefService.setCurrencyPref(event.currency);
+    });
 
     _userSubscription = _authenticationRepository.user.listen((user) {
       if (user.isNotEmpty) {
@@ -44,6 +51,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AuthenticationRepository _authenticationRepository;
   final FinnhubRepository _stockRepository;
   final PortfolioRepository _portfolioRepository;
+  final UserSharedPrefService _userSharedPrefService;
 
   late final StreamSubscription<User> _userSubscription;
   void _onUserChanged(_AppUserChanged event, Emitter<AppState> emit) {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:stock_portfolio/api/model/currency_enum.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 
 part 'add_position_event.dart';
@@ -29,7 +30,7 @@ class AddPositionBloc extends Bloc<AddPositionEvent, AddPositionState> {
                 ticker: '',
                 qtyOfShares: 0,
                 cost: 0,
-                currency: '',
+                currency: Currency.usd,
                 userId: '',
                 accountId: '',
               ))
@@ -40,6 +41,7 @@ class AddPositionBloc extends Bloc<AddPositionEvent, AddPositionState> {
             : -state.qtyOfShares,
         cost: state.cost,
         account: state.account,
+        currency: state.currency,
       );
       if (state.isNewPosition && _portfolioRepository.maxAccountReached) {
         emit(AddPositionMaxReached());
@@ -57,6 +59,7 @@ class AddPositionBloc extends Bloc<AddPositionEvent, AddPositionState> {
     on<AddPositionQtyOfSharesChanged>(_onQtyOfSharesChanged);
     on<AddPositionCostChanged>(_onCostChanged);
     on<AddPositionActionChanged>(_onActionChanged);
+    on<AddPositionCurrencyChanged>(_onCurrencyChanged);
   }
   final PortfolioRepository _portfolioRepository;
 
@@ -102,6 +105,15 @@ class AddPositionBloc extends Bloc<AddPositionEvent, AddPositionState> {
   ) {
     emit(
       state.copyWith(action: event.action),
+    );
+  }
+
+  void _onCurrencyChanged(
+    AddPositionCurrencyChanged event,
+    Emitter<AddPositionState> emit,
+  ) {
+    emit(
+      state.copyWith(currency: event.currency),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:stock_portfolio/api/service/user_shared_pref_service.dart';
+import 'package:stock_portfolio/authentication/authentication.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
@@ -11,14 +13,17 @@ class PositionListBloc extends Bloc<PositionListEvent, PositionListState> {
   PositionListBloc({
     required PortfolioRepository portfolioRepository,
     required FinnhubRepository stockRepository,
+    required UserSharedPrefService userSharedPrefService,
   })  : _portfolioRepository = portfolioRepository,
         _stockRepository = stockRepository,
+        _userSharedPrefService = userSharedPrefService,
         super(const PositionListState()) {
     _setupEventHandlers();
   }
 
   final PortfolioRepository _portfolioRepository;
   final FinnhubRepository _stockRepository;
+  final UserSharedPrefService _userSharedPrefService;
 
   void _setupEventHandlers() {
     on<LoadPositions>(_loadPositions);
@@ -37,18 +42,23 @@ class PositionListBloc extends Bloc<PositionListEvent, PositionListState> {
       accountFilter = accounts;
     }
     emit(state.copyWith(status: () => PositionListStatus.loading));
-
+    final userCurrency = _userSharedPrefService.getCurrencyPref();
     await emit.forEach<List<Position>>(
-      _portfolioRepository.getPositions(accountFilter, _stockRepository),
-      onData: (positions) => state.copyWith(
-        status: () => PositionListStatus.success,
-        positions: () => positions,
-        accounts: accounts,
-        accountsFilter: accountFilter,
-      ),
-      onError: (_, __) =>
-          state.copyWith(status: () => PositionListStatus.failure),
-    );
+        _portfolioRepository.getPositions(
+          accountFilter,
+          _stockRepository,
+          userCurrency,
+        ),
+        onData: (positions) => state.copyWith(
+              status: () => PositionListStatus.success,
+              positions: () => positions,
+              accounts: accounts,
+              accountsFilter: accountFilter,
+            ),
+        onError: (e, st) {
+          print('Error in PositionListBloc._loadPositions() $e');
+          return state.copyWith(status: () => PositionListStatus.failure);
+        });
   }
 
   Future<void> _deletePosition(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:stock_portfolio/api/model/currency_enum.dart';
 import 'package:stock_portfolio/stock/model/stock_model.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
@@ -28,8 +29,8 @@ class StockListBloc extends Bloc<StockListEvent, StockListState> {
     );
 
     try {
-      final stockModel =
-          await _stockRepository.fetchStockInformation(event.tickerSymbol);
+      final stockModel = await _stockRepository.fetchStockInformation(
+          event.tickerSymbol, Currency.usd);
       emit(
         state.copyWith(
           status: StockListStatus.success,

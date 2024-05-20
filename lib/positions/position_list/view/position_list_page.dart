@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stock_portfolio/api/service/user_shared_pref_service.dart';
 import 'package:stock_portfolio/l10n/l10n.dart';
 import 'package:stock_portfolio/positions/add_position/add_position.dart';
 import 'package:stock_portfolio/positions/position_list/bloc/position_list_bloc.dart';
-import 'package:stock_portfolio/positions/position_list/widget/account_filter_button.dart';
-import 'package:stock_portfolio/positions/position_list/widget/widget.dart';
+import 'package:stock_portfolio/positions/widget/account_filter_button.dart';
+import 'package:stock_portfolio/positions/widget/widget.dart';
 import 'package:stock_portfolio/repository/portfolio_repository.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
@@ -19,6 +20,7 @@ class PositionListPage extends StatelessWidget {
       create: (context) => PositionListBloc(
         portfolioRepository: context.read<PortfolioRepository>(),
         stockRepository: context.read<FinnhubRepository>(),
+        userSharedPrefService: context.read<UserSharedPrefService>(),
       )..add(const LoadPositions()),
       child: const PositionListView(),
     );
@@ -96,7 +98,9 @@ class PositionListView extends StatelessWidget {
                           initialValue: state.accountsFilter,
                           onChanged: (List<Account> results) {
                             context.read<PositionListBloc>().add(
-                                  PositionListAccountsFilterChanged(results),
+                                  PositionListAccountsFilterChanged(
+                                    results,
+                                  ),
                                 );
                             context
                                 .read<PositionListBloc>()
@@ -112,6 +116,7 @@ class PositionListView extends StatelessWidget {
 
                             return PositionCard(
                               position: position,
+                              totalValue: state.totalValue,
                             );
                           },
                         ),

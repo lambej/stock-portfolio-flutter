@@ -3,6 +3,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:stock_portfolio/api/model/currency_enum.dart';
 import 'package:stock_portfolio/api/model/models.dart';
 import 'package:stock_portfolio/stock/model/stock_model.dart';
 import 'package:uuid/uuid.dart';
@@ -65,7 +66,7 @@ class Position extends Equatable {
   /// The currency of the `position`.
   ///
   /// Cannot be empty.
-  final String currency;
+  final Currency currency;
 
   /// The id of the `account` this `position` belongs to.
   ///
@@ -101,7 +102,7 @@ class Position extends Equatable {
     String? ticker,
     double? qtyOfShares,
     double? cost,
-    String? currency,
+    Currency? currency,
     String? accountId,
     String? userId,
     double? costBasis,
@@ -146,9 +147,9 @@ class Position extends Equatable {
     return copyWith(totalShares: ts);
   }
 
-  Position setStockInfo(StockModel stockInfo) {
+  Position setStockPrice(double stockPrice) {
     return copyWith(
-      currentPrice: stockInfo.currentPrice,
+      currentPrice: stockPrice,
     );
   }
 
@@ -160,7 +161,7 @@ class Position extends Equatable {
     }
   }
 
-  double get marketValue => currentPrice! * qtyOfShares;
+  double get marketValue => (currentPrice ?? 0) * qtyOfShares;
 
   @override
   List<Object?> get props =>

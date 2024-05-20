@@ -5,6 +5,7 @@ import 'package:stock_portfolio/routes/routes.dart';
 class PositionCard extends StatelessWidget {
   const PositionCard({
     required this.position,
+    required this.totalValue,
     super.key,
     this.onDismissed,
     this.onTap,
@@ -12,6 +13,7 @@ class PositionCard extends StatelessWidget {
   });
 
   final Position position;
+  final double totalValue;
   final DismissDirectionCallback? onDismissed;
   final VoidCallback? onTap;
   final ConfirmDismissCallback? confirmDismiss;
@@ -54,7 +56,7 @@ class PositionCard extends StatelessWidget {
                         TableRow(
                           children: [
                             Text(
-                              'Price: \$${position.currentPrice}',
+                              'Price: \$${position.currentPrice ?? 0}',
                               style: MediaQuery.of(context).size.width < 500
                                   ? Theme.of(context).textTheme.titleSmall
                                   : Theme.of(context).textTheme.titleMedium,
@@ -72,7 +74,7 @@ class PositionCard extends StatelessWidget {
                         TableRow(
                           children: [
                             Text(
-                              'Shares: ${position.totalShares}',
+                              'Shares: ${position.totalShares ?? position.qtyOfShares}',
                               style: MediaQuery.of(context).size.width < 500
                                   ? Theme.of(context).textTheme.titleSmall
                                   : Theme.of(context).textTheme.titleMedium,
@@ -96,7 +98,12 @@ class PositionCard extends StatelessWidget {
                                   : Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(),
-                            const Text(''),
+                            Text(
+                              'Weight: ${(position.marketValue / totalValue * 100).toStringAsFixed(2)}%',
+                              style: MediaQuery.of(context).size.width < 500
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(),
                           ],
                         ),

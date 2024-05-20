@@ -16,6 +16,10 @@ final class PositionListState extends Equatable {
   final Position? lastDeletedPosition;
   final List<Account> accounts;
   final List<Account> accountsFilter;
+  double get totalValue => positions.fold<double>(
+        0,
+        (previousValue, element) => previousValue + element.marketValue,
+      );
 
   PositionListState copyWith({
     PositionListStatus Function()? status,

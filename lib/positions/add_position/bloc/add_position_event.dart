@@ -58,3 +58,12 @@ final class AddPositionActionChanged extends AddPositionEvent {
   @override
   List<Object> get props => [action];
 }
+
+final class AddPositionCurrencyChanged extends AddPositionEvent {
+  const AddPositionCurrencyChanged({required this.currency});
+
+  final Currency currency;
+
+  @override
+  List<Object> get props => [currency];
+}

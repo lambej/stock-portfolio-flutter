@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:stock_portfolio/api/model/currency_enum.dart';
 import 'package:stock_portfolio/api/service/portfolio_api_service.dart';
 import 'package:stock_portfolio/stock/repository/finnhub_stock_repository.dart';
 
@@ -171,34 +172,99 @@ class PortfolioRepository {
     return yearlyContributions;
   }
 
+  Stream<List<Position>> getConvertedPositions(
+    List<Account> accounts,
+    FinnhubRepository stockRepository,
+    Currency currency,
+  ) {
+    return _portfolioApi.getPositions(accounts).asyncMap((positions) async {
+      final pos = positions.map((position) async {
+        if (position.currency.name != currency.name) {
+          final convertedCost = await stockRepository.convertCurrency(
+            position.cost,
+            position.currency.name,
+            currency.name,
+          );
+          final convertedPosition = position.copyWith(
+            cost: convertedCost,
+          );
+          return convertedPosition;
+        }
+        return position;
+      });
+      return Future.wait(pos);
+    });
+  }
+
   /// Provides a [Stream] of all positions of the given accounts.
   ///
   Stream<List<Position>> getPositions(
     List<Account> accounts,
     FinnhubRepository stockRepository,
+    Currency currency,
   ) {
     final positionsStream =
-        _portfolioApi.getPositions(accounts).asyncMap((positions) async {
+        getConvertedPositions(accounts, stockRepository, currency)
+            .asyncMap((positions) async {
       final pos =
           groupBy(positions, (position) => position.ticker.toUpperCase())
               .values
               .toList()
               .map((positions) async {
-        final costBasis = await _getCostBasis(positions.first, accounts);
-        final stockInfo =
-            await stockRepository.fetchStockInformation(positions.first.ticker);
+        final costBasis = await _getCostBasis(
+            positions.first, accounts, stockRepository, currency);
+        final stockInfo = await stockRepository.fetchStockInformation(
+            positions.first.ticker, positions.first.currency);
         final totalShares = positions.fold<double>(
           0,
           (sum, position) => sum + position.qtyOfShares,
         );
+        final stockPrice = await stockRepository.convertCurrency(
+          stockInfo.currentPrice,
+          positions.first.currency.name,
+          currency.name,
+        );
         return positions.first
-            .setStockInfo(stockInfo)
+            .setStockPrice(stockPrice)
             .setCostBasis(costBasis)
             .setTotalShares(totalShares);
       });
       return Future.wait(pos);
     });
     return positionsStream;
+  }
+
+  /// Provides the value of the given accounts
+  Future<double> getAccountsValue(List<Account> accounts,
+      FinnhubRepository stockRepository, Currency currency) async {
+    final positions =
+        await getConvertedPositions(accounts, stockRepository, currency).first;
+    final stockValues = await Future.wait(
+      positions.map((position) async {
+        final stockInfo = await stockRepository.fetchStockInformation(
+          position.ticker,
+          currency,
+        );
+        final stockPrice = await stockRepository.convertCurrency(
+          stockInfo.currentPrice,
+          currency.name,
+          positions.first.currency.name,
+        );
+        return stockPrice * position.qtyOfShares;
+      }),
+    );
+    return stockValues.fold<double>(
+      0,
+      (previousValue, element) => previousValue + element,
+    );
+  }
+
+  /// Provides a [Stream] of all positions of the given accounts.
+  ///
+  Stream<List<Position>> getPositionTransactions(
+    List<Account> accounts,
+  ) {
+    return _portfolioApi.getPositions(accounts);
   }
 
   /// Saves a [position].
@@ -219,8 +285,13 @@ class PortfolioRepository {
   ///
   /// The Cost Basis is the average of the cost of all positions.
   Future<double> _getCostBasis(
-      Position position, List<Account> accounts) async {
-    final positions = await _portfolioApi.getPositions(accounts).first;
+    Position position,
+    List<Account> accounts,
+    FinnhubRepository stockRepository,
+    Currency currency,
+  ) async {
+    final positions =
+        await getConvertedPositions(accounts, stockRepository, currency).first;
     final totalCost = positions
         .where(
           (element) =>

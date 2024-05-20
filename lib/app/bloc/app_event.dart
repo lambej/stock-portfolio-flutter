@@ -18,3 +18,8 @@ final class _AppUserChanged extends AppEvent {
 
   final User user;
 }
+
+final class AppCurrencyChanged extends AppEvent {
+  const AppCurrencyChanged(this.currency);
+  final Currency currency;
+}
